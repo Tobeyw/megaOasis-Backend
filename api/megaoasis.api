@@ -1,0 +1,71 @@
+syntax = "v1"
+
+info (
+	title: // TODO: add title
+	desc: // TODO: add description
+	author: "Tobeyw"
+	email: "tobey1024@126.com"
+)
+
+type Address {
+	Address string `form:"address"`
+}
+
+type UserReq {
+	UserName  string        `json:"username"`
+	Address   string        `json:"address"`
+	Email     string        `json:"email"`
+	Twitter   string        `json:"twitter"`
+	Avatar    string        `json:"avatar"`
+	Bio       string        `json:"bio"`
+	Banner    string        `json:"banner"`
+	Signature SignatureData `json:"signature"`
+}
+
+type UserResp {
+	UserName  string `json:"username"`
+	Address   string `json:"address"`
+	Email     string `json:"email"`
+	Twitter   string `json:"twitter"`
+	Avatar    string `json:"avatar"`
+	Bio       string `json:"bio"`
+	Banner    string `json:"banner"`
+	Timestamp int64  `json:"timestamp"`
+}
+
+type SignatureData {
+	Message   string `json:"message"`
+	PublicKey string `json:"publicKey"`
+	Salt      string `json:"salt"`
+	Data      string `json:"data"`
+}
+
+type Response {
+	Message string `json:"message"`
+}
+
+type FilePath {
+	Path string `form:"path"`
+}
+
+type FileResponse {
+	Code []byte `json:"code"`
+}
+
+service megaOasis-api {
+	@handler EditUser
+	post /profile/edituser returns(Response)
+	
+	@handler UploadUser
+	post /profile/upload returns(Response)
+	
+	@handler TestUser
+	post /profile/testuser  returns(Response)
+	
+	@handler GetUser
+	get /profile/get (Address) returns(UserResp)
+	
+	@handler GetImage
+	get /image (FilePath) returns(FileResponse)
+	
+}
