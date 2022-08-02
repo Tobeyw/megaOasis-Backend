@@ -3,12 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 	"magaOasis/internal/config"
 	"magaOasis/internal/handler"
 	"magaOasis/internal/svc"
-	//"magaOasis/ws/email"
-	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/rest"
 )
 
 var configFile = flag.String("f", "etc/megaoasis-api.yaml", "the config file")
@@ -45,12 +44,10 @@ func main() {
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 
-    // add wss server
+	// add wss server
 	//group := service.NewServiceGroup()
 	//defer group.Stop()
 	//group.Add(server)
 	//group.Add(internal.Server{Ctx: ctx,Config: c})
 	//group.Start()
 }
-
-

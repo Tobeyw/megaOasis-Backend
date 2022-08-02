@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	port    = flag.Int("port", 3333, "the port to listen")
-	timeout = flag.Int64("timeout", 0, "timeout of milliseconds")
-	cpu     = flag.Int64("cpu", 500, "cpu threshold")
+	port       = flag.Int("port", 3333, "the port to listen")
+	timeout    = flag.Int64("timeout", 0, "timeout of milliseconds")
+	cpu        = flag.Int64("cpu", 500, "cpu threshold")
 	configFile = flag.String("f", "../etc/megaoasis-api.yaml", "the config file")
 )
 
@@ -31,15 +31,13 @@ func main() {
 
 	//定时任务
 
-
-
 	engine := rest.MustNewServer(rest.RestConf{
 		ServiceConf: service.ServiceConf{
 			Log: logx.LogConf{
 				Mode: "console",
 			},
 		},
-		Host:         "localhost",
+		Host:         "0.0.0.0",
 		Port:         *port,
 		Timeout:      *timeout,
 		CpuThreshold: *cpu,
@@ -70,11 +68,10 @@ func main() {
 		Method: http.MethodGet,
 		Path:   "/ws",
 		Handler: func(w http.ResponseWriter, r *http.Request) {
-			email.ServeWs(hub, w, r ,c,ctx)
+			email.ServeWs(hub, w, r, c, ctx)
 
 		},
 	})
 
 	engine.Start()
 }
-
