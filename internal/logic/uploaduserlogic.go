@@ -176,12 +176,28 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				return nil, err
 			}
 		}
+		//判断为空的情况
+		UserName := ""
+		if profile["UserName"] != nil {
+			UserName = profile["UserName"].(string)
+		}
+		Bio := ""
+		if profile["Bio"] != nil {
+			Bio = profile["Bio"].(string)
+		}
+		Address := ""
+		if profile["Address"] != nil {
+			Address = profile["Address"].(string)
+		}
+		Twitter := ""
+		if profile["Twitter"] != nil {
+			Twitter = profile["Twitter"].(string)
+		}
+		Email := ""
+		if profile["Email"] != nil {
+			Email = profile["Email"].(string)
+		}
 
-		UserName := profile["UserName"].(string)
-		Bio := profile["Bio"].(string)
-		Address := profile["Address"].(string)
-		Twitter := profile["Twitter"].(string)
-		Email := profile["Email"].(string)
 		//将数据存入数据库
 		getUser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, Address)
 		if err != nil && err.Error() != "sql: no rows in result set" {
