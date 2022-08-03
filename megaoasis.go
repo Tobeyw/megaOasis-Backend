@@ -18,6 +18,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	c.RestConf.MaxBytes = -1
+	c.RestConf.Timeout = 60000
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
