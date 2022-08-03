@@ -17,7 +17,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
+	c.RestConf.MaxBytes = -1
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
