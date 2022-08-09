@@ -7,7 +7,7 @@ const (
 	TwitterClientID              = "RnhqN29salVXX0hLdUxXanZQelM6MTpjaQ"
 	TwitterClientScret           = "2OSLp7aEk4SO3VkjvO2FnBymfagTwmJhXIXQ0QFHhQPjxoHTXk"
 	TwitterScope                 = "tweet.read%20users.read%20follows.read%20follows.write%20offline.access"
-	TwitterRedirectURI           = "http://localhost:8888/twitter/callback"
+	TwitterRedirectURI           = "https://megaoasis.ngd.network:8889/twitter/callback"
 	TwitterCodeChallenge         = "megaoasis"
 	TwitterCodeChallengeMethod   = "plain"
 	TwitterAccessTokenGrantType  = "authorization_code"
