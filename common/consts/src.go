@@ -6,7 +6,7 @@ const (
 	TwitterResponseType         = "code"
 	TwitterClientID             = "RnhqN29salVXX0hLdUxXanZQelM6MTpjaQ"
 	TwitterClientScret          = "2OSLp7aEk4SO3VkjvO2FnBymfagTwmJhXIXQ0QFHhQPjxoHTXk"
-	TwitterScope                = "users.read" //"tweet.read%20users.read"
+	TwitterScope                = "tweet.read%20users.read" //"tweet.read%20users.read"
 	TwitterRedirectURI          = "https://megaoasis.ngd.network:8889/twitter/callback"
 	TwitterCodeChallenge        = "megaoasis"
 	TwitterCodeChallengeMethod  = "plain"
