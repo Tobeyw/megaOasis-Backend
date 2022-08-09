@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"magaOasis/internal/svc"
@@ -25,20 +24,20 @@ func NewTwitterCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *T
 	}
 }
 
-func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam) error {
+func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, w http.ResponseWriter, r *http.Request) {
 	//code := req.Code
 
-	client := &http.Client{}
+	//client := &http.Client{}
 	url := "https://www.baidu.com/"
-	reqest, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		panic(err)
-	}
-	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}
-	response, _ := client.Do(reqest)
-	fmt.Println(response.StatusCode)
+	//reqest, err := http.NewRequest("GET", url, nil)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+	//	return http.ErrUseLastResponse
+	//}
+	//response, _ := client.Do(reqest)
 
-	return nil
+	http.Redirect(w, r, url, http.StatusFound)
+
 }

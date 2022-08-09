@@ -19,11 +19,11 @@ func TwitterCallbackHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := logic.NewTwitterCallbackLogic(r.Context(), svcCtx)
-		err := l.TwitterCallback(&req)
-		if err != nil {
-			httpx.Error(w, err)
-		} else {
-			//httpx.OkJson(w, resp)
-		}
+		l.TwitterCallback(&req, w, r)
+		//if err != nil {
+		//	httpx.Error(w, err)
+		//} else {
+		//	//httpx.OkJson(w, resp)
+		//}
 	}
 }
