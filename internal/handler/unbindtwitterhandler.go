@@ -11,7 +11,9 @@ import (
 
 func UnbindTwitterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+
 		var req types.UnbindTwitter
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.Error(w, err)
