@@ -43,6 +43,7 @@ type SignatureData {
 }
 
 type Response {
+	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
@@ -98,4 +99,8 @@ service megaOasis-api {
 	
 	@handler BindTwitter
 	post /twitter/bindTwitter(TwitterAccessToken) returns(Response)
+	
+	//error
+	@handler TwitterAlreadyAuth
+	get /twitter/error returns (Response)
 }

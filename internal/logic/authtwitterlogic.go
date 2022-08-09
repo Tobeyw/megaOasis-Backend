@@ -29,6 +29,4 @@ func (l *AuthTwitterLogic) AuthTwitter(req *types.Address) (resp *types.LoginTwi
 	return &types.LoginTwitterResponse{
 		Url: entryUrl,
 	}, nil
-
-	return
 }

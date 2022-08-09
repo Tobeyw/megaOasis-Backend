@@ -30,6 +30,8 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByAddress(ctx context.Context, address string) (*User, error)
+		FindOneByTwitter(ctx context.Context, twitter string) (*User, error)
+		FindOneByUserName(ctx context.Context, twitter string) (*User, error)
 		Update(ctx context.Context, newData *User) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -106,6 +108,46 @@ func (m *defaultUserModel) FindOneByAddress(ctx context.Context, address string)
 		return &resp, nil
 	case sqlc.ErrNotFound:
 		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) FindOneByTwitter(ctx context.Context, address string) (*User, error) {
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, address)
+	var resp User
+	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `twitter` = ? limit 1", userRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, address); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) FindOneByUserName(ctx context.Context, username string) (*User, error) {
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, username)
+	var resp User
+	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", userRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, username); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, nil
 	default:
 		return nil, err
 	}

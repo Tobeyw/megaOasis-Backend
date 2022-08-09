@@ -47,44 +47,51 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 		//return &types.Response{"GetUserInfoTwitter failed"}, err
 	}
 
-	getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
-	if err != nil && err.Error() != "sql: no rows in result set" {
-		log.Println("GetUserInfo failed ", err)
-	}
+	//查看该twitter是否验证过
+	getTwitter, err := l.svcCtx.UserModel.FindOneByTwitter(l.ctx, userName)
 
-	fmt.Println(getuser, err)
-
-	if getuser == nil {
-		// add
-		_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
-			Username:  sql.NullString{"", nullstring.IsNull("")},
-			Address:   address,
-			Bio:       sql.NullString{"", nullstring.IsNull("")},
-			Email:     sql.NullString{"", nullstring.IsNull("")},
-			Twitter:   sql.NullString{userName, nullstring.IsNull(userName)},
-			Avatar:    sql.NullString{"", nullstring.IsNull("")},
-			Banner:    sql.NullString{"", nullstring.IsNull("")},
-			Timestamp: time.Now().UnixMilli(),
-		})
-
-		if err != nil {
-			log.Println("UserInfoAdd failed ", err)
+	if getTwitter == nil {
+		getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
+		if err != nil && err.Error() != "sql: no rows in result set" {
+			log.Println("GetUserInfo failed ", err)
 		}
 
+		fmt.Println(getuser, err)
+
+		if getuser == nil {
+			// add
+			_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
+				Username:  sql.NullString{"", nullstring.IsNull("")},
+				Address:   address,
+				Bio:       sql.NullString{"", nullstring.IsNull("")},
+				Email:     sql.NullString{"", nullstring.IsNull("")},
+				Twitter:   sql.NullString{userName, nullstring.IsNull(userName)},
+				Avatar:    sql.NullString{"", nullstring.IsNull("")},
+				Banner:    sql.NullString{"", nullstring.IsNull("")},
+				Timestamp: time.Now().UnixMilli(),
+			})
+
+			if err != nil {
+				log.Println("UserInfoAdd failed ", err)
+			}
+
+		} else {
+			//update
+			getuser.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
+			err = l.svcCtx.UserModel.Update(l.ctx, getuser)
+			if err != nil {
+				log.Println("UserInfoUpdate failed ", err)
+
+			}
+		}
+
+		fmt.Println(userName)
+		//log.Fatal(getuser)
+
+		http.Redirect(w, r, url, http.StatusFound)
 	} else {
-		//update
-		getuser.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
-		err = l.svcCtx.UserModel.Update(l.ctx, getuser)
-		if err != nil {
-			log.Println("UserInfoUpdate failed ", err)
-			//return &types.Response{"UserInfoUpdate failed"}, err
-
-		}
+		errURL := consts.TwitterErrorPage
+		http.Redirect(w, r, errURL, http.StatusFound)
 	}
-
-	fmt.Println(userName)
-	//log.Fatal(getuser)
-
-	http.Redirect(w, r, url, http.StatusFound)
 
 }

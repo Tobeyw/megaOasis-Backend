@@ -42,29 +42,30 @@ func (l *BindTwitterLogic) BindTwitter(req *types.TwitterAccessToken) (resp *typ
 	if verifyResult {
 		accessToken, err := GetAccessTokenFromCode(req.Code)
 		if err != nil {
-			return &types.Response{"GetAccessTokenFromCode failed"}, err
+			return &types.Response{Code: 32001, Message: "GetAccessTokenFromCode failed"}, err
 		}
 		userName, err := GetUserInfoTwitter(accessToken)
 		if err != nil {
-			return &types.Response{"GetUserInfoTwitter failed"}, err
+			return &types.Response{Code: 32001, Message: "GetUserInfoTwitter failed"}, err
 		}
 
 		user, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, req.Address)
 		if err != nil {
-			return &types.Response{"FindUserByAddress failed"}, err
+			return &types.Response{Code: 32001, Message: "FindUserByAddress failed"}, err
 		}
 		user.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
 
 		err = l.svcCtx.UserModel.Update(l.ctx, user)
 		if err != nil {
-			return &types.Response{"UserInfoUpdate failed"}, err
+			return &types.Response{Code: 32001, Message: "UserInfoUpdate failed"}, err
 		}
 	} else {
 		return &types.Response{Message: "signature verify false"}, nil
 	}
 
 	return &types.Response{
-		"success",
+		Code:    200,
+		Message: "success",
 	}, nil
 }
 
@@ -107,7 +108,7 @@ func GetAccessTokenFromCode(code string) (accessToken string, err error) {
 	if err1 := json.Unmarshal(body, &data); err1 != nil {
 		return "", err
 	}
-	fmt.Println(data)
+
 	accessToken = data["access_token"].(string)
 	return accessToken, nil
 }

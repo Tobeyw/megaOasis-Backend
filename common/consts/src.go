@@ -15,4 +15,5 @@ const (
 	TwitterGetUserInfoEndpoint  = "https://api.twitter.com/2/users/me"
 	FrontEndRedirectUrlMain     = "https://megaoasis.io/account/profile"
 	FrontEndRedirectUrlTest     = "http://20.198.216.64:3005/account/profile"
+	TwitterErrorPage            = "https://megaoasis.ngd.network:8889/twitter/error"
 )

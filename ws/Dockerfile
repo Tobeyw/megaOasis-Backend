@@ -1,6 +1,6 @@
 FROM golang:1.17
 
-ENV GO111MODULE="off"
+ENV GO111MODULE="auto"
 
 ENV GOPROXY="https://goproxy.cn"
 
@@ -16,12 +16,7 @@ COPY . ./application
 
 WORKDIR "application"
 
-#RUN  cd ../
-
-#RUN  go mod tidy
-
-RUN  go build  main.go
-
+RUN  go build -o main  ./main.go
 
 EXPOSE 3333
 

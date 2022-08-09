@@ -42,6 +42,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/twitter/bindTwitter",
 				Handler: BindTwitterHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/twitter/error",
+				Handler: TwitterAlreadyAuthHandler(serverCtx),
+			},
 		},
 	)
 }

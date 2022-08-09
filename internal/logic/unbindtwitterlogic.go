@@ -27,13 +27,13 @@ func NewUnbindTwitterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Unb
 func (l *UnbindTwitterLogic) UnbindTwitter(req *types.UnbindTwitter) (resp *types.Response, err error) {
 	verifyResult, err := isVerify(req.Signature)
 	if err != nil {
-		return &types.Response{Message: "signature verify failed"}, err
+		return &types.Response{Code: 32001, Message: "signature verify failed"}, err
 	}
 
 	if verifyResult {
 		res, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, req.Address)
 		if err != nil {
-			return nil, err
+			return &types.Response{Code: 32001, Message: "signature verify failed"}, err
 		}
 
 		//fmt.Println(req.Twitter,res.Twitter.String,req.Twitter==res.Twitter.String)
@@ -44,11 +44,11 @@ func (l *UnbindTwitterLogic) UnbindTwitter(req *types.UnbindTwitter) (resp *type
 				return nil, err
 			}
 		} else {
-			return &types.Response{Message: "failed"}, nil
+			return &types.Response{Code: 32001, Message: "failed"}, nil
 		}
 	} else {
-		return &types.Response{Message: "signature verify false"}, nil
+		return &types.Response{Code: 32001, Message: "signature verify false"}, nil
 	}
 
-	return &types.Response{Message: "success"}, nil
+	return &types.Response{Code: 200, Message: "success"}, nil
 }

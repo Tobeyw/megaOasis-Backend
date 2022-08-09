@@ -45,11 +45,9 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	var profile = make(map[string]interface{})
 	reader, err := l.r.MultipartReader()
 	if err != nil {
-		return &types.Response{Message: "file upload failed,err:"}, err
+		return &types.Response{Code: 32001, Message: "file upload failed,err:"}, err
 	}
-	if err != nil {
-		return &types.Response{Message: "faild"}, err
-	}
+
 	for {
 		part, err := reader.NextPart()
 		if err == io.EOF {
@@ -86,7 +84,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				_, err := io.Copy(dst, part)
 				if err != nil {
 					fmt.Printf("Copy error: %v\n", err)
-					return nil, err
+					return &types.Response{Code: 32001, Message: "Copy error:"}, err
 				}
 				dst.Close()
 			} else if part.FormName() == "Banner" {
@@ -105,38 +103,59 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				_, err := io.Copy(dst, part)
 				if err != nil {
 					fmt.Printf("Copy error: %v\n", err)
-					return nil, err
+					return &types.Response{Code: 32001, Message: "Copy error:"}, err
 				}
 
 				dst.Close()
 			}
 		}
 	}
+
+	//判断为空的情况
+	UserName := ""
+	if profile["UserName"] != nil {
+		UserName = profile["UserName"].(string)
+	}
+	//
+	Bio := ""
+	if profile["Bio"] != nil {
+		Bio = profile["Bio"].(string)
+	}
+	Address := ""
+	if profile["Address"] != nil {
+		Address = profile["Address"].(string)
+	}
+	Twitter := ""
+	if profile["Twitter"] != nil {
+		Twitter = profile["Twitter"].(string)
+	}
+	Email := ""
+	if profile["Email"] != nil {
+		Email = profile["Email"].(string)
+	}
+	getUser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, Address)
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		return &types.Response{Code: 32001, Message: "name already exists"}, err
+	}
+	//处理username 重复的问题
+	if UserName != "" {
+		getUserByName, _ := l.svcCtx.UserModel.FindOneByUserName(l.ctx, UserName)
+		if getUserByName != nil {
+			return &types.Response{Code: 32002, Message: "name already exists"}, nil
+		}
+
+	}
+
 	//处理验签数据
 	signatureData := profile["Signature"].(string)
 	var signature types.SignatureData
 	if err1 := json.Unmarshal([]byte(signatureData), &signature); err1 != nil {
-		return &types.Response{Message: "signature convert failed"}, err
+		return &types.Response{Code: 32001, Message: "signature convert failed"}, err
 	}
 
-	//验签
-	//publicKey := signature.PublicKey
-	//pk, err := crypto.NewECPointFromString(publicKey)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//data := helper.HexToBytes(signature.Data)
-	//parameterHexString := helper.BytesToHex([]byte(signature.Salt + signature.Message))
-	//
-	//varint := helper.VarIntFromInt(len(parameterHexString) / 2)
-	//lengthHex := helper.BytesToHex(varint.Bytes())
-	//concatenatedString := lengthHex + parameterHexString
-	//serializedTransaction := "010001f0" + concatenatedString + "0000"
-	//
-	//isVerify1 := keys.VerifySignature(helper.HexToBytes(serializedTransaction), data, pk)
 	verifyResult, err := isVerify(signature)
 	if err != nil {
-		return &types.Response{Message: "signature verify failed"}, err
+		return &types.Response{Code: 32001, Message: "signature verify failed"}, err
 	}
 
 	if verifyResult {
@@ -159,6 +178,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			err := os.Rename(bannerOldFileName, bannerNewFileName)
 			if err != nil {
 				fmt.Println("重命名失败", err)
+				return &types.Response{Code: 32001, Message: "rename failed"}, err
 			}
 			bannerFullname = "/" + profile["Address"].(string) + "/" + bannerName
 		} else {
@@ -174,6 +194,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			err = os.Rename(avatarOldFileName, avatarNewFileName)
 			if err != nil {
 				fmt.Println("重命名失败", err)
+				return &types.Response{Code: 32001, Message: "rename failed:"}, err
 			}
 			avatarFullname = "/" + profile["Address"].(string) + "/" + avatarName
 		} else {
@@ -185,36 +206,11 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			err = os.Remove(pD)
 			if err != nil {
 				fmt.Println("remove dir failed", err)
-				return nil, err
+				return &types.Response{Code: 32001, Message: "remove dir failed"}, err
 			}
-		}
-		//判断为空的情况
-		UserName := ""
-		if profile["UserName"] != nil {
-			UserName = profile["UserName"].(string)
-		}
-		Bio := ""
-		if profile["Bio"] != nil {
-			Bio = profile["Bio"].(string)
-		}
-		Address := ""
-		if profile["Address"] != nil {
-			Address = profile["Address"].(string)
-		}
-		Twitter := ""
-		if profile["Twitter"] != nil {
-			Twitter = profile["Twitter"].(string)
-		}
-		Email := ""
-		if profile["Email"] != nil {
-			Email = profile["Email"].(string)
 		}
 
 		//将数据存入数据库
-		getUser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, Address)
-		if err != nil && err.Error() != "sql: no rows in result set" {
-			return nil, err
-		}
 
 		if getUser == nil { //create
 			_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
@@ -229,10 +225,11 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			})
 
 			if err != nil {
-				return nil, err
+
+				return &types.Response{Code: 32001, Message: "insert failed"}, err
 			}
 
-			return &types.Response{Message: "success"}, nil
+			return &types.Response{Code: 200, Message: "success"}, nil
 		} else { //update
 
 			err := l.svcCtx.UserModel.Update(l.ctx, &user.User{
@@ -248,14 +245,14 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			})
 
 			if err != nil {
-				return nil, err
+				return &types.Response{Code: 32001, Message: "update failed"}, err
 			}
 
-			return &types.Response{Message: "success"}, nil
+			return &types.Response{Code: 200, Message: "success"}, nil
 
 		}
 	} else {
-		return &types.Response{Message: "faild"}, nil
+		return &types.Response{Code: 32001, Message: "faild"}, nil
 	}
 
 	return &types.Response{}, err
