@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"magaOasis/common/consts"
 	"magaOasis/lib/type/nullstring"
 	"net/http"
+	"time"
 
 	"magaOasis/internal/svc"
 	"magaOasis/internal/types"
+	"magaOasis/model/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,7 +32,7 @@ func NewTwitterCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *T
 
 func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, w http.ResponseWriter, r *http.Request) {
 
-	url := "https://www.baidu.com/"
+	url := consts.FrontEndRedirectUrlTest
 
 	code := req.Code
 	address := req.State
@@ -45,17 +48,37 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 		//return &types.Response{"GetUserInfoTwitter failed"}, err
 	}
 
-	user, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
-	if err != nil {
-		log.Println("FindUserByAddress failed ", err)
-		//return &types.Response{"FindUserByAddress failed"}, err
+	getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		log.Println("GetUserInfo failed ", err)
 	}
-	user.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
 
-	err = l.svcCtx.UserModel.Update(l.ctx, user)
-	if err != nil {
-		log.Println("UserInfoUpdate failed ", err)
-		//return &types.Response{"UserInfoUpdate failed"}, err
+	if getuser == nil {
+		// add
+		_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
+			Username:  sql.NullString{"", nullstring.IsNull("")},
+			Address:   address,
+			Bio:       sql.NullString{"", nullstring.IsNull("")},
+			Email:     sql.NullString{"", nullstring.IsNull("")},
+			Twitter:   sql.NullString{userName, nullstring.IsNull(userName)},
+			Avatar:    sql.NullString{"", nullstring.IsNull("")},
+			Banner:    sql.NullString{"", nullstring.IsNull("")},
+			Timestamp: time.Now().UnixMilli(),
+		})
+
+		if err != nil {
+			log.Println("UserInfoAdd failed ", err)
+		}
+
+	} else {
+		//update
+		getuser.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
+		err = l.svcCtx.UserModel.Update(l.ctx, getuser)
+		if err != nil {
+			log.Println("UserInfoUpdate failed ", err)
+			//return &types.Response{"UserInfoUpdate failed"}, err
+
+		}
 	}
 
 	log.Fatal(userName)
