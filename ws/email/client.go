@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/robfig/cron"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	neo "magaOasis/common/mongo"
-	"magaOasis/internal/config"
-	"magaOasis/internal/svc"
+	"magaOasis/src/config"
+	"magaOasis/src/svc"
 	"net/http"
 	"time"
 
@@ -46,7 +44,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -58,7 +55,6 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
-
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -86,8 +82,6 @@ func (c *Client) readPump() {
 		c.hub.broadcast <- message
 	}
 }
-
-
 
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
@@ -131,39 +125,41 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c Client) sendEmail(cfg config.Config,svcCtx *svc.ServiceContext)  {
-	cd,dbonline :=intializeMongoOnlineClient(cfg,context.TODO())
-	fura := &neo.T{
+func (c Client) sendEmail(cfg config.Config, svcCtx *svc.ServiceContext) {
+	cd, dbonline := intializeMongoOnlineClient(cfg, context.TODO())
+	fura := &T{
 		Db_online: dbonline,
-		C_online: cd,
+		C_online:  cd,
 	}
-	getEvent(fura,svcCtx)
+	getEvent(fura, cfg, svcCtx)
+
+	fmt.Printf("dd==============")
 
 }
 
 // ServeWs handles websocket requests from the peer.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request,cfg config.Config ,svcCtx *svc.ServiceContext) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, cfg config.Config, svcCtx *svc.ServiceContext) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	cd,dbonline :=intializeMongoOnlineClient(cfg,context.TODO())
-	fura := &neo.T{
-		Db_online: dbonline,
-		C_online: cd,
-	}
-
-	 //定时事件
-	c1:= cron.New()
-
-	err = c1.AddFunc("5 * * * *", func() {
-		fmt.Println("Start daily job")
-		go getCronEvent(fura,svcCtx)
-
-	})
-	c1.Start()
+	//
+	//cd,dbonline :=intializeMongoOnlineClient(cfg,context.TODO())
+	//fura := &neo.T{
+	//	Db_online: dbonline,
+	//	C_online: cd,
+	//}
+	//
+	// //定时事件
+	////c1:= cron.New()
+	////
+	////err = c1.AddFunc("5 * * * *", func() {
+	////	fmt.Println("Start daily job")
+	////	go getCronEvent(fura,svcCtx)
+	////
+	////})
+	////c1.Start()
 
 	client := &Client{
 		hub:  hub,
@@ -176,11 +172,10 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request,cfg config.Config 
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
-	go client.sendEmail(cfg,svcCtx)
+	go client.sendEmail(cfg, svcCtx)
 	//go client
 
 }
-
 
 func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.Client, string) {
 

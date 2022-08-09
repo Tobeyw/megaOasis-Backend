@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 8888
 
 # 数据库 mysql
-DataSource: root:root@tcp(localhost:3306)/magnet
+DataSource: root:root@tcp(localhost:3306)/megaoasis
 Table: user
 
 #缓存
@@ -18,9 +18,10 @@ Log:
 
 #email account
 Email:
-  Account: tobey1024@126.com
-  Passwd: HPIPKBZYVJWTVZXM   #授权码
-  Host: mtp.126.com:25
+  Account: notification@megaoasis.io
+  Passwd: 3WuGD1OV1   #授权码
+  Host: smtpout.secureserver.net
+  Port: 465
 
 #neofura mongodb
 MongoDB: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02neofura
