@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 8888
 
 # 数据库 mysql
-DataSource: root:root@tcp(localhost:3306)/megaoasis
+DataSource: root:root@tcp(localhost:3306)/magnet
 Table: user
 
 #缓存
