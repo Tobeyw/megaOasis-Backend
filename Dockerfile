@@ -16,9 +16,7 @@ COPY . ./application
 
 WORKDIR "application"
 
-RUN  go mod tidy
-
-RUN  go build megaoasis.go
+RUN  go build -o main ./megaoasis.go
 
 EXPOSE 8888
 
