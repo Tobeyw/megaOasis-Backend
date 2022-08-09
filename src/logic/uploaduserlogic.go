@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"magaOasis/internal/svc"
-	"magaOasis/internal/types"
+	"magaOasis/src/svc"
+	"magaOasis/src/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

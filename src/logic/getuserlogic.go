@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"magaOasis/internal/svc"
-	"magaOasis/internal/types"
+	"magaOasis/src/svc"
+	"magaOasis/src/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +24,7 @@ func NewGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserLo
 }
 
 func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err error) {
-	res, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx,req.Address)
+	res, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, req.Address)
 
 	if err != nil {
 		return nil, err
@@ -32,12 +32,12 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 
 	return &types.UserResp{
 		UserName: res.Username.String,
-		Address: res.Address,
-		Email: res.Email.String,
-		Twitter: res.Twitter.String,
-		Avatar: res.Avatar.String,
-		Bio: res.Bio.String,
-		Banner: res.Banner.String,
+		Address:  res.Address,
+		Email:    res.Email.String,
+		Twitter:  res.Twitter.String,
+		Avatar:   res.Avatar.String,
+		Bio:      res.Bio.String,
+		Banner:   res.Banner.String,
 	}, nil
 
 }
