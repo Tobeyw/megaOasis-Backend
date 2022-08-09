@@ -55,7 +55,13 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 		if err == io.EOF {
 			break
 		}
+		b := part.FileName()
+		fmt.Println(b)
+		a := part.FormName()
+		fmt.Println(a)
 		if part.FileName() == "" {
+			a := part.FormName()
+			fmt.Println(a)
 			data, _ := ioutil.ReadAll(part)
 			profile[part.FormName()] = string(data)
 			if part.FormName() == "Avatar" {
@@ -63,45 +69,47 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			} else if part.FormName() == "Banner" {
 				profile["flag"+part.FormName()] = false
 			}
-		} else if part.FormName() == "Avatar" {
-			pathFile := createDateDir("./")
-			suffix := path.Ext(part.FileName())
-			pf := pathFile + "/" + part.FormName() + suffix
-			profile[part.FormName()] = pf
-			profile["flag"+part.FormName()] = true
-			dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
-			defer func(dst *os.File) {
-				err := dst.Close()
+		} else {
+			if part.FormName() == "Avatar" {
+				pathFile := createDateDir("./")
+				suffix := path.Ext(part.FileName())
+				pf := pathFile + "/" + part.FormName() + suffix
+				profile[part.FormName()] = pf
+				profile["flag"+part.FormName()] = true
+				dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
+				defer func(dst *os.File) {
+					err := dst.Close()
+					if err != nil {
+						fmt.Printf("Closing file error: %v\n", err)
+					}
+				}(dst)
+				_, err := io.Copy(dst, part)
 				if err != nil {
-					fmt.Printf("Closing file error: %v\n", err)
+					fmt.Printf("Copy error: %v\n", err)
+					return nil, err
 				}
-			}(dst)
-			_, err := io.Copy(dst, part)
-			if err != nil {
-				fmt.Printf("Copy error: %v\n", err)
-				return nil, err
-			}
-			dst.Close()
-		} else if part.FormName() == "Banner" {
-			pathFile := createDateDir("./")
-			suffix := path.Ext(part.FileName())
-			pf := pathFile + "/" + part.FormName() + suffix
-			profile[part.FormName()] = pf
-			profile["flag"+part.FormName()] = true
-			dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
-			defer func(dst *os.File) {
-				err := dst.Close()
+				dst.Close()
+			} else if part.FormName() == "Banner" {
+				pathFile := createDateDir("./")
+				suffix := path.Ext(part.FileName())
+				pf := pathFile + "/" + part.FormName() + suffix
+				profile[part.FormName()] = pf
+				profile["flag"+part.FormName()] = true
+				dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
+				defer func(dst *os.File) {
+					err := dst.Close()
+					if err != nil {
+						fmt.Printf("Closing file error: %v\n", err)
+					}
+				}(dst)
+				_, err := io.Copy(dst, part)
 				if err != nil {
-					fmt.Printf("Closing file error: %v\n", err)
+					fmt.Printf("Copy error: %v\n", err)
+					return nil, err
 				}
-			}(dst)
-			_, err := io.Copy(dst, part)
-			if err != nil {
-				fmt.Printf("Copy error: %v\n", err)
-				return nil, err
-			}
 
-			dst.Close()
+				dst.Close()
+			}
 		}
 	}
 	//处理验签数据
@@ -112,22 +120,26 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	}
 
 	//验签
-	publicKey := signature.PublicKey
-	pk, err := crypto.NewECPointFromString(publicKey)
+	//publicKey := signature.PublicKey
+	//pk, err := crypto.NewECPointFromString(publicKey)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//data := helper.HexToBytes(signature.Data)
+	//parameterHexString := helper.BytesToHex([]byte(signature.Salt + signature.Message))
+	//
+	//varint := helper.VarIntFromInt(len(parameterHexString) / 2)
+	//lengthHex := helper.BytesToHex(varint.Bytes())
+	//concatenatedString := lengthHex + parameterHexString
+	//serializedTransaction := "010001f0" + concatenatedString + "0000"
+	//
+	//isVerify1 := keys.VerifySignature(helper.HexToBytes(serializedTransaction), data, pk)
+	verifyResult, err := isVerify(signature)
 	if err != nil {
-		return nil, err
+		return &types.Response{Message: "signature verify failed"}, err
 	}
-	data := helper.HexToBytes(signature.Data)
-	parameterHexString := helper.BytesToHex([]byte(signature.Salt + signature.Message))
 
-	varint := helper.VarIntFromInt(len(parameterHexString) / 2)
-	lengthHex := helper.BytesToHex(varint.Bytes())
-	concatenatedString := lengthHex + parameterHexString
-	serializedTransaction := "010001f0" + concatenatedString + "0000"
-
-	isVerify := keys.VerifySignature(helper.HexToBytes(serializedTransaction), data, pk)
-
-	if isVerify {
+	if verifyResult {
 		removeDir := ""
 		bannerFullname := ""
 		avatarFullname := ""
@@ -265,4 +277,34 @@ func createDateDir(basepath string) string {
 		}
 	}
 	return folderPath
+}
+
+//目录是否存在
+func isDirExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+//验签
+func isVerify(signature types.SignatureData) (bool, error) {
+
+	//验签
+	publicKey := signature.PublicKey
+	pk, err := crypto.NewECPointFromString(publicKey)
+	if err != nil {
+		return false, err
+	}
+	data := helper.HexToBytes(signature.Data)
+	parameterHexString := helper.BytesToHex([]byte(signature.Salt + signature.Message))
+
+	varint := helper.VarIntFromInt(len(parameterHexString) / 2)
+	lengthHex := helper.BytesToHex(varint.Bytes())
+	concatenatedString := lengthHex + parameterHexString
+	serializedTransaction := "010001f0" + concatenatedString + "0000"
+
+	result := keys.VerifySignature(helper.HexToBytes(serializedTransaction), data, pk)
+	return result, nil
 }

@@ -17,14 +17,16 @@ type UserReq struct {
 }
 
 type UserResp struct {
-	UserName  string `json:"username"`
-	Address   string `json:"address"`
-	Email     string `json:"email"`
-	Twitter   string `json:"twitter"`
-	Avatar    string `json:"avatar"`
-	Bio       string `json:"bio"`
-	Banner    string `json:"banner"`
-	Timestamp int64  `json:"timestamp"`
+	UserName      string `json:"username"`
+	Address       string `json:"address"`
+	Email         string `json:"email"`
+	Twitter       string `json:"twitter"`
+	Avatar        string `json:"avatar"`
+	Bio           string `json:"bio"`
+	Banner        string `json:"banner"`
+	Timestamp     int64  `json:"timestamp"`
+	TtitterUpdate int64  `json:"twitterupdate"`
+	EmailUpdate   int64  `json:"emailupdate"`
 }
 
 type SignatureData struct {
@@ -44,4 +46,30 @@ type FilePath struct {
 
 type FileResponse struct {
 	Code []byte `json:"code"`
+}
+
+type LoginTwitterResponse struct {
+	Url string `json:"url"`
+}
+
+type LoginTwitterParam struct {
+	Address     string `json:"address" form:"address"`
+	CallbackUrl string `json:"callbackUrl" form:"callbackUrl"`
+}
+
+type CallbackTwitterParam struct {
+	State string `form:"state"`
+	Code  string `form:"code"`
+}
+
+type UnbindTwitter struct {
+	Address   string        `json:"address"`
+	Twitter   string        `json:"twitter"`
+	Signature SignatureData `json:"signature"`
+}
+
+type TwitterAccessToken struct {
+	Address   string        `json:"address"`
+	Code      string        `json:"code"`
+	Signature SignatureData `json:"signature"`
 }

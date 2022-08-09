@@ -23,14 +23,16 @@ type UserReq {
 }
 
 type UserResp {
-	UserName  string `json:"username"`
-	Address   string `json:"address"`
-	Email     string `json:"email"`
-	Twitter   string `json:"twitter"`
-	Avatar    string `json:"avatar"`
-	Bio       string `json:"bio"`
-	Banner    string `json:"banner"`
-	Timestamp int64  `json:"timestamp"`
+	UserName      string `json:"username"`
+	Address       string `json:"address"`
+	Email         string `json:"email"`
+	Twitter       string `json:"twitter"`
+	Avatar        string `json:"avatar"`
+	Bio           string `json:"bio"`
+	Banner        string `json:"banner"`
+	Timestamp     int64  `json:"timestamp"`
+	TtitterUpdate int64  `json:"twitterupdate"`
+	EmailUpdate   int64  `json:"emailupdate"`
 }
 
 type SignatureData {
@@ -52,20 +54,48 @@ type FileResponse {
 	Code []byte `json:"code"`
 }
 
+type LoginTwitterResponse {
+	Url string `json:"url"`
+}
+
+type LoginTwitterParam {
+	Address     string `json:"address" form:"address"`
+	CallbackUrl string `json:"callbackUrl" form:"callbackUrl"`
+}
+type CallbackTwitterParam {
+	State string `form:"state"`
+	Code  string `form:"code"`
+}
+
+type UnbindTwitter {
+	Address   string        `json:"address"`
+	Twitter   string        `json:"twitter"`
+	Signature SignatureData `json:"signature"`
+}
+
+type TwitterAccessToken {
+	Address   string        `json:"address"`
+	Code      string        `json:"code"`
+	Signature SignatureData `json:"signature"`
+}
+
 service megaOasis-api {
-	@handler EditUser
-	post /profile/edituser returns(Response)
-	
 	@handler UploadUser
 	post /profile/upload returns(Response)
-	
-	@handler TestUser
-	post /profile/testuser  returns(Response)
 	
 	@handler GetUser
 	get /profile/get (Address) returns(UserResp)
 	
-	@handler GetImage
-	get /image (FilePath) returns(FileResponse)
+	// twitter
+	@handler LoginTwitter
+	get /profile/twitter returns(LoginTwitterResponse)
 	
+	@handler TwitterCallback
+	get /twitter/callback(CallbackTwitterParam) returns(Response)
+	
+	@handler UnbindTwitter
+	post /profile/unbindTwitter(UnbindTwitter) returns(Response)
+	
+	@handler BindTwitter
+	post /twitter/bindTwitter(TwitterAccessToken) returns(Response)
 }

@@ -18,7 +18,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	c.RestConf.MaxBytes = -1
-	c.RestConf.Timeout = 60000
+	c.RestConf.Timeout = 60000 //设置传输时间 1min
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
