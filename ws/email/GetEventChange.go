@@ -8,9 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"magaOasis/common/nftEvent"
-	"magaOasis/src/config"
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
+	"magaOasis/internal/config"
+	"magaOasis/internal/svc"
+	"magaOasis/internal/types"
 	"math"
 	"strconv"
 )

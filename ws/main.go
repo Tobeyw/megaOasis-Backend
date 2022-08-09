@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/zeromicro/go-zero/core/conf"
-	"magaOasis/src/config"
-	"magaOasis/src/svc"
+	"magaOasis/internal/config"
+	"magaOasis/internal/svc"
 	"magaOasis/ws/email"
 	"net/http"
 

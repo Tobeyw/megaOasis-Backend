@@ -2,8 +2,8 @@ package svc
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"magaOasis/internal/config"
 	"magaOasis/model/user"
-	"magaOasis/src/config"
 )
 
 type ServiceContext struct {

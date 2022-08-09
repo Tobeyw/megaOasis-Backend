@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
-	"magaOasis/src/config"
-	"magaOasis/src/handler"
-	"magaOasis/src/svc"
+	"magaOasis/internal/config"
+	"magaOasis/internal/handler"
+	"magaOasis/internal/svc"
 )
 
 var configFile = flag.String("f", "etc/megaoasis-api.yaml", "the config file")
@@ -49,6 +49,6 @@ func main() {
 	//group := service.NewServiceGroup()
 	//defer group.Stop()
 	//group.Add(server)
-	//group.Add(src.Server{Ctx: ctx,Config: c})
+	//group.Add(internal.Server{Ctx: ctx,Config: c})
 	//group.Start()
 }

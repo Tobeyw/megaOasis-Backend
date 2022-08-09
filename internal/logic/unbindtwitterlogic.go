@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"magaOasis/internal/svc"
+	"magaOasis/internal/types"
 	"magaOasis/lib/type/nullstring"
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
+	"magaOasis/internal/svc"
+	"magaOasis/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

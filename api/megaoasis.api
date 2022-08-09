@@ -87,11 +87,11 @@ service megaOasis-api {
 	get /profile/get (Address) returns(UserResp)
 	
 	// twitter
-	@handler LoginTwitter
-	get /profile/twitter returns(LoginTwitterResponse)
+	@handler AuthTwitter
+	get /profile/twitter(Address) returns(LoginTwitterResponse)
 	
 	@handler TwitterCallback
-	get /twitter/callback(CallbackTwitterParam) returns(Response)
+	get /twitter/callback(CallbackTwitterParam)
 	
 	@handler UnbindTwitter
 	post /profile/unbindTwitter(UnbindTwitter) returns(Response)

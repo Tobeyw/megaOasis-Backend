@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"magaOasis/src/svc"
+	"magaOasis/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -25,7 +25,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/profile/twitter",
-				Handler: LoginTwitterHandler(serverCtx),
+				Handler: AuthTwitterHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,

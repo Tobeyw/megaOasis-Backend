@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"magaOasis/src/logic"
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
+	"magaOasis/internal/logic"
+	"magaOasis/internal/svc"
+	"magaOasis/internal/types"
 )
 
 func UnbindTwitterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
