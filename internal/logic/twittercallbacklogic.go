@@ -2,6 +2,9 @@ package logic
 
 import (
 	"context"
+	"database/sql"
+	"log"
+	"magaOasis/lib/type/nullstring"
 	"net/http"
 
 	"magaOasis/internal/svc"
@@ -25,18 +28,33 @@ func NewTwitterCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *T
 }
 
 func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, w http.ResponseWriter, r *http.Request) {
-	//code := req.Code
 
-	//client := &http.Client{}
 	url := "https://www.baidu.com/"
-	//reqest, err := http.NewRequest("GET", url, nil)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-	//	return http.ErrUseLastResponse
-	//}
-	//response, _ := client.Do(reqest)
+
+	code := req.Code
+	address := req.State
+
+	accessToken, err := GetAccessTokenFromCode(code)
+	if err != nil {
+		//return &types.Response{"GetAccessTokenFromCode failed"}, err
+	}
+	userName, err := GetUserInfoTwitter(accessToken)
+	if err != nil {
+		//return &types.Response{"GetUserInfoTwitter failed"}, err
+	}
+
+	user, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
+	if err != nil {
+		//return &types.Response{"FindUserByAddress failed"}, err
+	}
+	user.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
+
+	err = l.svcCtx.UserModel.Update(l.ctx, user)
+	if err != nil {
+		//return &types.Response{"UserInfoUpdate failed"}, err
+	}
+
+	log.Fatal(userName)
 
 	http.Redirect(w, r, url, http.StatusFound)
 
