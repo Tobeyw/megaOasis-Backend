@@ -30,7 +30,7 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 	url := consts.FrontEndRedirectUrlTest
 
 	code := req.Code
-	//address := req.State
+	address := req.State
 
 	accessToken, err := GetAccessTokenFromCode(code)
 	if err != nil {
@@ -43,10 +43,12 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 		//return &types.Response{"GetUserInfoTwitter failed"}, err
 	}
 
-	//getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
-	//if err != nil && err.Error() != "sql: no rows in result set" {
-	//	log.Println("GetUserInfo failed ", err)
-	//}
+	getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		log.Println("GetUserInfo failed ", err)
+	}
+
+	fmt.Println(getuser, err)
 
 	//if getuser == nil {
 	//	// add
