@@ -18,6 +18,8 @@ type Config struct {
 		Host    string
 		Port    int
 	}
-	MongoDB string
-	DB      string
+	MongoDBTest string
+	DBTest      string
+	MongoDBMain string
+	DBMain      string
 }

@@ -179,8 +179,8 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, cfg config.Config
 
 func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.Client, string) {
 
-	clientOptions := options.Client().ApplyURI(cfg.MongoDB)
-	dbOnline := cfg.DB
+	clientOptions := options.Client().ApplyURI(cfg.MongoDBTest)
+	dbOnline := cfg.DBTest
 
 	clientOptions.SetMaxPoolSize(20)
 	co, err := mongo.Connect(ctx, clientOptions)
