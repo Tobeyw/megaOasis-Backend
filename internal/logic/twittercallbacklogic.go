@@ -26,7 +26,7 @@ func NewTwitterCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *T
 
 func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, w http.ResponseWriter, r *http.Request) {
 
-	//url := "https://www.baidu.com/"
+	url := "https://www.baidu.com/"
 	//
 	//code := req.Code
 	//address := req.State
@@ -53,6 +53,6 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 	//
 	//log.Fatal(userName)
 	//
-	//http.Redirect(w, r, url, http.StatusFound)
+	http.Redirect(w, r, url, http.StatusFound)
 
 }
