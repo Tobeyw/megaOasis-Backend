@@ -19,7 +19,7 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	c.RestConf.MaxBytes = -1
 	c.RestConf.Timeout = 60000 //设置传输时间 1min
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithCors())
 	defer server.Stop()
 
 	//cd,dbonline :=intializeMongoOnlineClient(c,context.TODO())
@@ -41,6 +41,7 @@ func main() {
 	//c1.Start()
 
 	ctx := svc.NewServiceContext(c)
+
 	handler.RegisterHandlers(server, ctx)
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
