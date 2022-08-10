@@ -25,6 +25,8 @@ func NewGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserLo
 }
 
 func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err error) {
+	fmt.Println("==========================================")
+	fmt.Println(req.Address)
 	res, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, req.Address)
 	fmt.Println(err)
 	if err != nil && err != sqlc.ErrNotFound {
