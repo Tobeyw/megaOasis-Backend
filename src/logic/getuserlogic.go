@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"magaOasis/src/svc"
 	"magaOasis/src/types"
@@ -28,6 +29,7 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 	if err != nil && err != sqlc.ErrNotFound {
 		return nil, err
 	}
+	fmt.Println(err)
 	if err == sqlc.ErrNotFound {
 		return nil, nil
 	}
