@@ -11,6 +11,7 @@ Table: message
 #缓存
 Cache:
   - Host: 10.0.7.39:6379
+  #- Host: localhost:6379
 
 # Log
 Log:
