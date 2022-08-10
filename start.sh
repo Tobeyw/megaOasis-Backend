@@ -11,7 +11,7 @@ then
     docker container rm megaoasis_email_test
 
     docker rmi test_megaoasis_profie -f
-    docker rmi megaoasis_ws -f
+    docker rmi test_megaoasis_email -f
     docker-compose -p "test" up -d
 fi
 

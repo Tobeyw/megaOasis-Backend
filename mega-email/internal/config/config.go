@@ -9,6 +9,7 @@ import (
 type Config struct {
 	rest.RestConf
 	User           zrpc.RpcClientConf
+	DataSource     string
 	DataSourceTest string
 	DataSourceMain string
 	Table          string
