@@ -3,13 +3,13 @@ Host: 0.0.0.0
 Port: 8888
 
 # 数据库 mysql
-DataSourceTest: root:root@tcp(10.0.7.39:3306)/magnet
-DataSourceMain: root:root@tcp(10.0.7.39:3306)/main
+DataSourceTest: root:root@tcp(172.17.0.1:3306)/magnet
+DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: user
 
 #缓存
 Cache:
-  - Host: 10.0.7.39:6379
+  - Host: 172.17.0.1:6379
  # - Host: localhost:6379
 
 # Log
