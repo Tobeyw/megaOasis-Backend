@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"magaOasis/model/user"
 	"magaOasis/src/config"
@@ -15,7 +16,7 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	rt := os.ExpandEnv("${RUNTIME}")
-
+	fmt.Println(rt)
 	if rt == "test" {
 		return &ServiceContext{
 			Config:    c,
@@ -29,7 +30,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	} else {
 		return &ServiceContext{
 			Config:    c,
-			UserModel: nil,
+			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
 		}
 	}
 
