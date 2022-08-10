@@ -7,8 +7,6 @@ services:
         RT: ${RUNTIME}
     ports:
       - "8888:8888"
-    networks:
-      - network
     restart: always
     container_name: megaoasis_profie_${RUNTIME}
     volumes:
@@ -24,8 +22,6 @@ services:
         RT: ${RUNTIME}
     ports:
       - "3333:3333"
-    networks:
-      - network
     restart: always
     container_name: megaoasis_email_${RUNTIME}
     volumes:
@@ -40,8 +36,6 @@ services:
         RT: ${RUNTIME}
     ports:
       - "8090:8090"
-    networks:
-      - network
     restart: always
     container_name: megaoasis_img_${RUNTIME}
     volumes:
@@ -50,8 +44,6 @@ services:
 
   redis:
     image: redis
-    networks:
-      - network
     restart: always
     ports:
       - "6379:6379"
