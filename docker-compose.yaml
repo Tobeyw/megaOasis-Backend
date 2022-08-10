@@ -16,7 +16,7 @@ services:
     depends_on:
       - redis
 
-  megaoasis_ws:
+  megaoasis_email:
     build:
       context: "./mega-email"
       args:
@@ -26,7 +26,7 @@ services:
     networks:
       - network
     restart: always
-    container_name: megaoasis_ws_${RUNTIME}
+    container_name: megaoasis_email_${RUNTIME}
     volumes:
       - ./logs_ws:/go/application/Logs/
     depends_on:
