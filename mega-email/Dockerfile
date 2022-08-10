@@ -20,4 +20,4 @@ RUN  go build -o main  ./email.go
 
 EXPOSE 3333
 
-CMD ["./main","-f","./etc/email-api.yaml"]
+CMD ["./main","-f","etc/email-api.yaml"]
