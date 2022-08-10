@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"magaOasis/common/consts"
+	"os"
 
 	"magaOasis/src/svc"
 	"magaOasis/src/types"
@@ -25,7 +26,12 @@ func NewAuthTwitterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AuthT
 }
 
 func (l *AuthTwitterLogic) AuthTwitter(req *types.Address) (resp *types.LoginTwitterResponse, err error) {
-	entryUrl := consts.TwitterAuthorizeEndpoint + "?" + "response_type=" + consts.TwitterResponseType + "&client_id=" + consts.TwitterClientID + "&scope=" + consts.TwitterScope + "&state=" + req.Address + "&redirect_uri=" + consts.TwitterRedirectURI + "&code_challenge=" + consts.TwitterCodeChallenge + "&code_challenge_method=" + consts.TwitterCodeChallengeMethod
+	rt := os.ExpandEnv("${RUNTIME}")
+	redirect := consts.TwitterRedirectURIMain
+	if rt == "test" {
+		redirect = consts.TwitterRedirectURITest
+	}
+	entryUrl := consts.TwitterAuthorizeEndpoint + "?" + "response_type=" + consts.TwitterResponseType + "&client_id=" + consts.TwitterClientID + "&scope=" + consts.TwitterScope + "&state=" + req.Address + "&redirect_uri=" + redirect + "&code_challenge=" + consts.TwitterCodeChallenge + "&code_challenge_method=" + consts.TwitterCodeChallengeMethod
 	return &types.LoginTwitterResponse{
 		Url: entryUrl,
 	}, nil
