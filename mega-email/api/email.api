@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info (
+	title: // TODO: add title
+	desc: // TODO: add description
+	author: "Tobeyw"
+	email: "tobey1024@126.com"
+)
+
+type Address {
+	Address string `form:"address"`
+}
+
+type Response {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type UserResp {
+	UserName      string `json:"username"`
+	Address       string `json:"address"`
+	Email         string `json:"email"`
+	Twitter       string `json:"twitter"`
+	Avatar        string `json:"avatar"`
+	Bio           string `json:"bio"`
+	Banner        string `json:"banner"`
+	Timestamp     int64  `json:"timestamp"`
+	TtitterUpdate int64  `json:"twitterupdate"`
+	EmailUpdate   int64  `json:"emailupdate"`
+}
+service email-api {
+	@handler GetUser
+	get /profile/get (Address) returns(UserResp)
+	
+}

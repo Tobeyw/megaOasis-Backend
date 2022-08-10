@@ -1,4 +1,4 @@
-package email
+package neo
 
 import (
 	"context"
@@ -8,15 +8,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"magaOasis/common/nftEvent"
-	"magaOasis/src/config"
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
 	"math"
 	"strconv"
 )
 
 // (map[string]interface{},error)
-func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
+func (me *T) GetAddressCount() {
 
 	c, err := me.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
 	if err != nil {
@@ -34,6 +31,7 @@ func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
 		}
 		eventItem := changeEvent["fullDocument"].(map[string]interface{})
 		eventname := eventItem["eventname"]
+		fmt.Println(eventname)
 		asset := eventItem["asset"].(string)
 		tokenid := eventItem["tokenid"].(string)
 
@@ -136,73 +134,70 @@ func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
 			//return nil, err
 		}
 		eventItem["name"] = nftname
-		SendEmailByEvent(cfg, svcCtx, eventItem)
-
+		fmt.Printf("===")
+		//return eventItem,nil
+		SendEmail("test", "testbody", "1832541104@qq.com")
 	}
 
 	//return nil,nil
 }
 
-func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[string]interface{}) {
-	if result["nftEvent"] != nil {
-		event := result["nftEvent"].(nftEvent.T).Val()
-		if event == nftEvent.Sold_Success.Val() {
-			name := result["name"].(string)
-			amount := result["convertAmount"].(string)
-			symbol := result["symbol"].(string)
-			address := types.Address{
-				Address: result["owner"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
-			if err != nil {
-				fmt.Println("Error:", err)
-				//return
-			}
-			fmt.Println("email: ", to)
-			title := "Congratulations, your item sold!"
-			body := "You successfully sold " + name + " for " + amount + " " + symbol + " on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
-			//return title,body,to
-
-		} else if event == nftEvent.Receive_Offer.Val() {
-			name := result["name"].(string)
-			amount := result["convertAmount"].(string)
-			symbol := result["symbol"].(string)
-			address := types.Address{
-				Address: result["originOwner"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
-			if err != nil {
-				fmt.Println("Error:", err)
-				//return
-			}
-			title := "Someone made an offer on your item!"
-			body := "You have an offer of " + amount + " " + symbol + " for " + name + " on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
-			//return title,body,to
-
-		} else if event == nftEvent.Accept_Offer.Val() {
-			name := result["name"].(string)
-			amount := result["convertAmount"].(string)
-			symbol := result["symbol"].(string)
-
-			address := types.Address{
-				Address: result["offerer"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
-			if err != nil {
-				fmt.Println("Error:", err)
-				//return
-			}
-			title := "Congratulations, your offer was accepted!"
-			body := "Your offer of " + amount + " " + symbol + " for " + name + " was accepted on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
-			//return title,body,to
-
-		}
-	}
-
-}
+//func () GetEmaiPara(result map[string]interface{}) (string,string,string) {
+//
+//	event := result["nftEvent"].(nftEvent.T).Val()
+//	if event == nftEvent.Sold_Success.Val(){
+//		name:=result["name"].(string)
+//		amount:=result["convertAmount"].(string)
+//		symbol:=result["symbol"].(string)
+//		address:=types.Address{
+//			Address: result["owner"].(string),
+//		}
+//		to,err :=GetEmail(address,svcCtx)
+//		if err!=nil{
+//			fmt.Println("Error:",err)
+//			//return
+//		}
+//		fmt.Println("email: ",to)
+//		title:="Congratulations, your item sold!"
+//		body:="You successfully sold "+ name +" for "+ amount +" "+ symbol+" on MegaOasis."
+//		SendEmail(title,body,to)
+//
+//	}else if event == nftEvent.Receive_Offer.Val() {
+//		name:=result["name"].(string)
+//		amount:=result["convertAmount"].(string)
+//		symbol:=result["symbol"].(string)
+//		address:=types.Address{
+//			Address:result["originOwner"].(string),
+//		}
+//		to,err :=GetEmail(address,svcCtx)
+//		if err!=nil{
+//			fmt.Println("Error:",err)
+//			//return
+//		}
+//		title:="Someone made an offer on your item!"
+//		body:="You have an offer of "+ amount +" "+ symbol +" for "+ name +" on MegaOasis."
+//		SendEmail(title,body,to)
+//
+//	}else if event == nftEvent.Accept_Offer.Val() {
+//		name:=result["name"].(string)
+//		amount:=result["convertAmount"].(string)
+//		symbol:=result["symbol"].(string)
+//
+//		address:=types.Address{
+//			Address:result["offerer"].(string),
+//		}
+//		to,err :=GetEmail(address,svcCtx)
+//		if err!=nil{
+//			fmt.Println("Error:",err)
+//			//return
+//		}
+//		title:="Congratulations, your offer was accepted!"
+//		body:="Your offer of "+amount+" "+symbol+" for "+ name +" was accepted on MegaOasis."
+//		SendEmail(title,body,to)
+//
+//	}
+//
+//}
 
 func (me *T) GetNFTName(asset string, tokenid string) (string, error) {
 	message := make(json.RawMessage, 0)

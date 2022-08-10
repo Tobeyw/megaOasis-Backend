@@ -1,31 +1,64 @@
-package email
+package main
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
+	"flag"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	gomail "gopkg.in/mail.v2"
+	"io/ioutil"
 	"log"
 	"magaOasis/common/nftEvent"
-	"magaOasis/src/config"
-	"magaOasis/src/svc"
-	"magaOasis/src/types"
+	"magaOasis/home"
+	"os"
+
+	"magaOasis/internal/config"
+	"magaOasis/internal/handler"
+	"magaOasis/internal/svc"
+	"magaOasis/internal/types"
 	"math"
+	"net/http"
 	"strconv"
+
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 )
 
-// (map[string]interface{},error)
-func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
+var configFile = flag.String("f", "etc/email-api.yaml", "the config file")
 
-	c, err := me.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
-	if err != nil {
-		//return nil, err
+func main() {
+	log.Println("YOUR ENV IS %s", os.ExpandEnv("${RUNTIME}"))
+	flag.Parse()
+
+	var c config.Config
+	conf.MustLoad(*configFile, &c)
+	server := rest.MustNewServer(c.RestConf)
+	defer server.Stop()
+
+	ctx := svc.NewServiceContext(c)
+	handler.RegisterHandlers(server, ctx)
+
+	//==============
+	cd, dbonline := intializeMongoOnlineClient(c, context.TODO())
+	me := home.T{
+		Db_online: dbonline,
+		C_online:  cd,
 	}
-	cs, err := c.Watch(context.TODO(), mongo.Pipeline{})
+
+	conn, err := me.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
+	if err != nil {
+		fmt.Println("conn :", err)
+	}
+	cs, err := conn.Watch(context.TODO(), mongo.Pipeline{})
 	if err != nil {
 		//return nil,err
+		fmt.Println("watch:", err)
 	}
+
+	fmt.Println("watching....")
 	for cs.Next(context.TODO()) {
 		var changeEvent map[string]interface{}
 		err := cs.Decode(&changeEvent)
@@ -36,7 +69,7 @@ func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
 		eventname := eventItem["eventname"]
 		asset := eventItem["asset"].(string)
 		tokenid := eventItem["tokenid"].(string)
-
+		fmt.Println(eventname)
 		if eventname == "Claim" {
 			nonce := eventItem["nonce"].(int64)
 			extendData := eventItem["extendData"].(string)
@@ -136,11 +169,36 @@ func (me *T) GetAddressCount(cfg config.Config, svcCtx *svc.ServiceContext) {
 			//return nil, err
 		}
 		eventItem["name"] = nftname
-		SendEmailByEvent(cfg, svcCtx, eventItem)
+		SendEmailByEvent(c, ctx, eventItem)
 
 	}
 
-	//return nil,nil
+	//==============
+	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	server.Start()
+
+}
+
+func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.Client, string) {
+	rt := os.ExpandEnv("${RUNTIME}")
+	//默认main
+	clientOptions := options.Client().ApplyURI(cfg.MongoDBMain)
+	dbOnline := cfg.MongoDBMain
+	if rt == "test" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBTest)
+		dbOnline = cfg.DBTest
+	}
+
+	clientOptions.SetMaxPoolSize(20)
+	co, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = co.Ping(ctx, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return co, dbOnline
 }
 
 func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[string]interface{}) {
@@ -204,108 +262,51 @@ func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[
 
 }
 
-func (me *T) GetNFTName(asset string, tokenid string) (string, error) {
-	message := make(json.RawMessage, 0)
-	ret := &message
-	r1, count, err := me.QueryAll(struct {
-		Collection string
-		Index      string
-		Sort       bson.M
-		Filter     bson.M
-		Query      []string
-		Limit      int64
-		Skip       int64
-	}{
-		Collection: "Nep11Properties",
-		Index:      "Nep11Properties",
-		Sort:       bson.M{},
-		Filter:     bson.M{"asset": asset, "tokenid": tokenid},
-		Query:      []string{},
-		Limit:      10,
-		Skip:       0,
-	}, ret)
-	if err != nil {
-		return "", err
-	}
-	nftname := ""
-	if count == int64(1) {
-		properties := r1[0]["properties"].(string)
-		if properties != "" {
-			var data map[string]interface{}
-			if err1 := json.Unmarshal([]byte(properties), &data); err1 == nil {
-				name, ok := data["name"].(string)
-				if ok {
-					nftname = name
-				} else {
-					nftname = ""
-				}
-			} else {
-				return "", err
-			}
+func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
+	if to != "" {
+		m := gomail.NewMessage()               // 声明一封邮件对象
+		m.SetHeader("From", cfg.Email.Account) // 发件人
+		m.SetHeader("To", to)                  // 收件人
+		m.SetHeader("Subject", subject)        // 邮件主题
+		m.SetBody("text/plain", body)          // 邮件内容
+
+		// host 是提供邮件的服务器，port是服务器端口，username 是发送邮件的账号, password是发送邮件的密码
+		d := gomail.NewDialer(cfg.Email.Host, cfg.Email.Port, cfg.Email.Account, cfg.Email.Passwd)
+		d.TLSConfig = &tls.Config{InsecureSkipVerify: true} // 配置tls，跳过验证
+		if err := d.DialAndSend(m); err != nil {
+			log.Fatalln("msg", "try send a mail failed", "err", err)
+		} else {
+			fmt.Println("send email to " + to)
 		}
 	}
-	return nftname, nil
+
 }
 
-func (me *T) GetAssetSymbol(asset string) (string, int32, error) {
-	message := make(json.RawMessage, 0)
-	ret := &message
-	r1, count, err := me.QueryAll(struct {
-		Collection string
-		Index      string
-		Sort       bson.M
-		Filter     bson.M
-		Query      []string
-		Limit      int64
-		Skip       int64
-	}{
-		Collection: "Asset",
-		Index:      "Asset",
-		Sort:       bson.M{},
-		Filter:     bson.M{"hash": asset},
-		Query:      []string{},
-		Limit:      10,
-		Skip:       0,
-	}, ret)
-	if err != nil {
-		return "", 0, err
-	}
-	symbol := ""
-	decimals := int32(0)
-	if count == int64(1) {
-		decimals = r1[0]["decimals"].(int32)
-		symbol = r1[0]["symbol"].(string)
-	}
+func GetEmail(req types.Address, svcCtx *svc.ServiceContext) (string, error) {
 
-	return symbol, decimals, nil
-}
-
-func (me *T) GetOwner(nonce int64) (string, error) {
-	message := make(json.RawMessage, 0)
-	ret := &message
-	r1, count, err := me.QueryAll(struct {
-		Collection string
-		Index      string
-		Sort       bson.M
-		Filter     bson.M
-		Query      []string
-		Limit      int64
-		Skip       int64
-	}{
-		Collection: "MarketNotification",
-		Index:      "MarketNotification",
-		Sort:       bson.M{},
-		Filter:     bson.M{"eventname": "Auction", "nonce": nonce},
-		Query:      []string{},
-		Limit:      10,
-		Skip:       0,
-	}, ret)
+	url := "http://localhost:8888/profile/get?address=" + req.Address
+	resp, err := http.Get(url)
 	if err != nil {
+
 		return "", err
 	}
-	var user string
-	if count == int64(1) {
-		user = r1[0]["user"].(string)
+	defer resp.Body.Close()
+	reader := resp.Body
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		//log.Errorf("reader error:%v", err)
+		return "", err
 	}
-	return user, nil
+
+	var data map[string]interface{}
+	if err1 := json.Unmarshal(body, &data); err1 != nil {
+		return "", err
+	}
+	email := ""
+	if data["email"] != nil {
+		email = data["email"].(string)
+	}
+
+	return email, nil
+
 }

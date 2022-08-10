@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
-	"magaOasis/internal/config"
-	"magaOasis/internal/handler"
-	"magaOasis/internal/svc"
+	"magaOasis/src/config"
+	"magaOasis/src/handler"
+	"magaOasis/src/svc"
 )
 
 var configFile = flag.String("f", "etc/megaoasis-api.yaml", "the config file")

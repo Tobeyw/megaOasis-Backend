@@ -7,8 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"magaOasis/internal/config"
-	"magaOasis/internal/svc"
+	"magaOasis/src/config"
+	"magaOasis/src/svc"
 	"net/http"
 	"time"
 

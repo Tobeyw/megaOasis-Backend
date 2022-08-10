@@ -1,11 +1,11 @@
-Name: megaOasis-api
+Name: email-api
 Host: 0.0.0.0
-Port: 8888
+Port: 3333
 
 # 数据库 mysql
 DataSourceTest: root:root@tcp(localhost:3306)/magnet
 DataSourceMain: root:root@tcp(localhost:3306)/main
-Table: user
+Table: message
 
 #缓存
 Cache:
@@ -32,6 +32,3 @@ DBTest: test02neofura
 #10.0.7.5:27018/neofura
 MongoDBMain: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@10.0.7.38:27018/bakN3
 DBMain: bakN3
-
-
-

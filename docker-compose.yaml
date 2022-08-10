@@ -16,6 +16,22 @@ services:
     depends_on:
       - redis
 
+  megaoasis_ws:
+    build:
+      context: "./mega-email"
+      args:
+        RT: ${RUNTIME}
+    ports:
+      - "3333:3333"
+    networks:
+      - network
+    restart: always
+    container_name: megaoasis_ws_${RUNTIME}
+    volumes:
+      - ./logs_ws:/go/application/Logs/
+    depends_on:
+      - redis
+
   megaoasis_img:
     build:
       context: "./img"
@@ -36,7 +52,7 @@ services:
       - network
     restart: always
     ports:
-      - "6380:6380"
+      - "6379:6379"
     container_name: megaoasis_cache_${RUNTIME}
 
 networks:
