@@ -11,6 +11,7 @@ import (
 	"magaOasis/lib/type/nullstring"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"magaOasis/src/svc"
@@ -75,7 +76,12 @@ func GetAccessTokenFromCode(code string) (accessToken string, err error) {
 	postData.Add("client_id", consts.TwitterClientID)
 	postData.Add("code_verifier", consts.TwitterCodeChallenge)
 	postData.Add("grant_type", consts.TwitterAccessTokenGrantType)
-	postData.Add("redirect_uri", consts.TwitterRedirectURI)
+	rt := os.ExpandEnv("${RUNTIME}")
+	if rt == "test" {
+		postData.Add("redirect_uri", consts.TwitterRedirectURITest)
+	} else {
+		postData.Add("redirect_uri", consts.TwitterRedirectURIMain)
+	}
 
 	client := &http.Client{}
 
