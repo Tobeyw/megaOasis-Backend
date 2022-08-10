@@ -8,11 +8,12 @@ import (
 
 type Config struct {
 	rest.RestConf
-	User       zrpc.RpcClientConf
-	DataSource string
-	Table      string
-	Cache      cache.CacheConf
-	Email      struct {
+	User           zrpc.RpcClientConf
+	DataSourceTest string
+	DataSourceMain string
+	Table          string
+	Cache          cache.CacheConf
+	Email          struct {
 		Account string
 		Passwd  string
 		Host    string

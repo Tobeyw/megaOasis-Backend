@@ -3,11 +3,9 @@ module magaOasis
 go 1.17
 
 require (
-	github.com/gorilla/websocket v1.4.2
 	github.com/joeqian10/neo3-gogogo v1.1.2
 	github.com/zeromicro/go-zero v1.3.4
 	go.mongodb.org/mongo-driver v1.9.1
-	gopkg.in/mail.v2 v2.3.1
 )
 
 require (
@@ -76,7 +74,6 @@ require (
 	google.golang.org/genproto v0.0.0-20220422154200-b37d22cd5731 // indirect
 	google.golang.org/grpc v1.46.2 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
