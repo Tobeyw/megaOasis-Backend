@@ -42,15 +42,17 @@ type (
 	}
 
 	User struct {
-		Id        int64          `db:"id"`
-		Username  sql.NullString `db:"username"`
-		Bio       sql.NullString `db:"bio"`
-		Address   string         `db:"address"`
-		Email     sql.NullString `db:"email"`
-		Twitter   sql.NullString `db:"twitter"`
-		Avatar    sql.NullString `db:"avatar"`
-		Banner    sql.NullString `db:"banner"`
-		Timestamp int64          `db:"timestamp"`
+		Id            int64          `db:"id"`
+		Username      sql.NullString `db:"username"`
+		Bio           sql.NullString `db:"bio"`
+		Address       string         `db:"address"`
+		Email         sql.NullString `db:"email"`
+		Twitter       sql.NullString `db:"twitter"`
+		Avatar        sql.NullString `db:"avatar"`
+		Banner        sql.NullString `db:"banner"`
+		Timestamp     int64          `db:"timestamp"`
+		TwitterCreate sql.NullInt64  `db:"twitter_create"`
+		EmailCreate   sql.NullInt64  `db:"email_create"`
 	}
 )
 
@@ -157,8 +159,8 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, data.Address)
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.Email, data.Twitter, data.Avatar, data.Banner, data.Timestamp)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.Email, data.Twitter, data.Avatar, data.Banner, data.Timestamp, data.TwitterCreate, data.EmailCreate)
 	}, userAddressKey, userIdKey)
 	return ret, err
 }
@@ -173,7 +175,7 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.Email, newData.Twitter, newData.Avatar, newData.Banner, newData.Timestamp, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.Email, newData.Twitter, newData.Avatar, newData.Banner, newData.Timestamp, newData.TwitterCreate, newData.EmailCreate, newData.Id)
 	}, userAddressKey, userIdKey)
 	return err
 }

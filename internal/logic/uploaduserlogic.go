@@ -210,18 +210,24 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			}
 		}
 
+		EmailCreate := int64(0)
 		//将数据存入数据库
+		if Email != "" {
+			EmailCreate = time.Now().UnixMilli()
+		}
 
 		if getUser == nil { //create
 			_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
-				Username:  sql.NullString{UserName, nullstring.IsNull(UserName)},
-				Address:   Address,
-				Bio:       sql.NullString{Bio, nullstring.IsNull(Bio)},
-				Email:     sql.NullString{Email, nullstring.IsNull(Email)},
-				Twitter:   sql.NullString{Twitter, nullstring.IsNull(Twitter)},
-				Avatar:    sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
-				Banner:    sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
-				Timestamp: time.Now().UnixMilli(),
+				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
+				Address:       Address,
+				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
+				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
+				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
+				Avatar:        sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
+				Banner:        sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
+				Timestamp:     time.Now().UnixMilli(),
+				TwitterCreate: sql.NullInt64{int64(0), nullstring.IsZero(int64(0))},
+				EmailCreate:   sql.NullInt64{EmailCreate, nullstring.IsZero(EmailCreate)},
 			})
 
 			if err != nil {
@@ -233,15 +239,17 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 		} else { //update
 
 			err := l.svcCtx.UserModel.Update(l.ctx, &user.User{
-				Id:        getUser.Id,
-				Username:  sql.NullString{UserName, nullstring.IsNull(UserName)},
-				Address:   Address,
-				Bio:       sql.NullString{Bio, nullstring.IsNull(Bio)},
-				Email:     sql.NullString{Email, nullstring.IsNull(Email)},
-				Twitter:   sql.NullString{Twitter, nullstring.IsNull(Twitter)},
-				Avatar:    sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
-				Banner:    sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
-				Timestamp: getUser.Timestamp,
+				Id:            getUser.Id,
+				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
+				Address:       Address,
+				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
+				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
+				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
+				Avatar:        sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
+				Banner:        sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
+				Timestamp:     getUser.Timestamp,
+				EmailCreate:   sql.NullInt64{EmailCreate, nullstring.IsZero(EmailCreate)},
+				TwitterCreate: sql.NullInt64{int64(0), nullstring.IsZero(int64(0))},
 			})
 
 			if err != nil {

@@ -39,6 +39,7 @@ func (l *UnbindTwitterLogic) UnbindTwitter(req *types.UnbindTwitter) (resp *type
 		//fmt.Println(req.Twitter,res.Twitter.String,req.Twitter==res.Twitter.String)
 		if req.Twitter == res.Twitter.String {
 			res.Twitter = sql.NullString{"", nullstring.IsNull("")}
+			res.TwitterCreate = sql.NullInt64{int64(0), nullstring.IsZero(int64(0))}
 			err := l.svcCtx.UserModel.Update(l.ctx, res)
 			if err != nil {
 				return nil, err

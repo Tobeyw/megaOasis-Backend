@@ -61,14 +61,16 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 		if getuser == nil {
 			// add
 			_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
-				Username:  sql.NullString{"", nullstring.IsNull("")},
-				Address:   address,
-				Bio:       sql.NullString{"", nullstring.IsNull("")},
-				Email:     sql.NullString{"", nullstring.IsNull("")},
-				Twitter:   sql.NullString{userName, nullstring.IsNull(userName)},
-				Avatar:    sql.NullString{"", nullstring.IsNull("")},
-				Banner:    sql.NullString{"", nullstring.IsNull("")},
-				Timestamp: time.Now().UnixMilli(),
+				Username:      sql.NullString{"", nullstring.IsNull("")},
+				Address:       address,
+				Bio:           sql.NullString{"", nullstring.IsNull("")},
+				Email:         sql.NullString{"", nullstring.IsNull("")},
+				Twitter:       sql.NullString{userName, nullstring.IsNull(userName)},
+				Avatar:        sql.NullString{"", nullstring.IsNull("")},
+				Banner:        sql.NullString{"", nullstring.IsNull("")},
+				Timestamp:     time.Now().UnixMilli(),
+				TwitterCreate: sql.NullInt64{time.Now().UnixMilli(), true},
+				EmailCreate:   sql.NullInt64{int64(0), nullstring.IsZero(int64(0))},
 			})
 
 			if err != nil {
@@ -78,6 +80,7 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 		} else {
 			//update
 			getuser.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
+			getuser.TwitterCreate = sql.NullInt64{time.Now().UnixMilli(), true}
 			err = l.svcCtx.UserModel.Update(l.ctx, getuser)
 			if err != nil {
 				log.Println("UserInfoUpdate failed ", err)
