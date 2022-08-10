@@ -17,6 +17,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	rt := os.ExpandEnv("${RUNTIME}")
 	fmt.Println(rt)
+	fmt.Println("==========")
 	if rt == "test" {
 		return &ServiceContext{
 			Config:    c,
