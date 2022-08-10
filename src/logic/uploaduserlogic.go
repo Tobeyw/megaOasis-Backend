@@ -138,7 +138,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 		return &types.Response{Code: 32001, Message: "name already exists"}, err
 	}
 	//处理username 重复的问题
-	if UserName != "" {
+	if getUser == nil && UserName != "" {
 		getUserByName, _ := l.svcCtx.UserModel.FindOneByUserName(l.ctx, UserName)
 		if getUserByName != nil {
 			return &types.Response{Code: 32002, Message: "name already exists"}, nil
