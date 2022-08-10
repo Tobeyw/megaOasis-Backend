@@ -8,6 +8,8 @@ CREATE TABLE `user`
     `twitter` varchar(255),
     `avatar` varchar(255),
     `banner` varchar(255),
-    `timestamp` int NOT NULL,
+    `timestamp` bigint NOT NULL,
+    `twitter_create` bigint,
+    `email_create` bigint,
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
