@@ -8,7 +8,7 @@ import (
 func main() {
 	fmt.Println(http.Dir("./"))
 
-	http.Handle("/", http.FileServer(http.Dir("/go/application/")))
+	http.Handle("/", http.FileServer(http.Dir("/go/application/img/")))
 	e := http.ListenAndServe("0.0.0.0:8090", nil)
 	if e != nil {
 		fmt.Println(e)

@@ -46,7 +46,7 @@ services:
     container_name: megaoasis_img_${RUNTIME}
     volumes:
       - ./logs_ws:/go/application/Logs
-      - /home/ubuntu/img:/go/application
+      - /home/ubuntu/img:/go/application/img
 
   redis:
     image: redis
@@ -57,5 +57,4 @@ services:
       - "6379:6379"
     container_name: megaoasis_cache_${RUNTIME}
 
-networks:
-  network:
+
