@@ -14,6 +14,7 @@ import (
 	"magaOasis/model/user"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"time"
@@ -67,6 +68,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			} else if part.FormName() == "Banner" {
 				profile["flag"+part.FormName()] = false
 			}
+			fmt.Println("===1:", profile["flag"+part.FormName()])
 		} else {
 			if part.FormName() == "Avatar" {
 				pathFile := createDateDir("./")
@@ -74,6 +76,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				pf := pathFile + "/" + part.FormName() + suffix
 				profile[part.FormName()] = pf
 				profile["flag"+part.FormName()] = true
+				fmt.Println("====avatar:", profile["flag"+part.FormName()])
 				dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
 				defer func(dst *os.File) {
 					err := dst.Close()
@@ -93,6 +96,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				pf := pathFile + "/" + part.FormName() + suffix
 				profile[part.FormName()] = pf
 				profile["flag"+part.FormName()] = true
+				fmt.Println("====banner:", profile["flag"+part.FormName()])
 				dst, _ := os.OpenFile(pf, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0766)
 				defer func(dst *os.File) {
 					err := dst.Close()
@@ -135,10 +139,10 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	}
 	getUser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, Address)
 	if err != nil && err.Error() != "sql: no rows in result set" {
-		return &types.Response{Code: 32001, Message: "name already exists"}, err
+		return &types.Response{Code: 32001, Message: "findByAddress err:"}, err
 	}
 	//处理username 重复的问题
-	if getUser == nil && UserName != "" {
+	if getUser == nil && UserName != "" { // add
 		getUserByName, _ := l.svcCtx.UserModel.FindOneByUserName(l.ctx, UserName)
 		if getUserByName != nil {
 			return &types.Response{Code: 32002, Message: "name already exists"}, nil
@@ -175,10 +179,16 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			bannerName := path.Base(banner)
 			bannerOldFileName := banner
 			bannerNewFileName := pathDir + "/" + bannerName
-			err := os.Rename(bannerOldFileName, bannerNewFileName)
+			//err := os.Rename(bannerOldFileName, bannerNewFileName)
+			//if err != nil {
+			//	fmt.Println("重命名失败", err)
+			//	return &types.Response{Code: 32001, Message: "rename failed"}, err
+			//}
+			var cmd *exec.Cmd
+			cmd = exec.Command("mv", bannerOldFileName, bannerNewFileName)
+			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("重命名失败", err)
-				return &types.Response{Code: 32001, Message: "rename failed"}, err
+				return &types.Response{Code: 32001, Message: "rename failed:"}, err
 			}
 			bannerFullname = "/" + profile["Address"].(string) + "/" + bannerName
 		} else {
@@ -191,9 +201,15 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			avatarName := path.Base(avatar)
 			avatarOldFileName := avatar
 			avatarNewFileName := pathDir + "/" + avatarName
-			err = os.Rename(avatarOldFileName, avatarNewFileName)
+			//err = os.Rename(avatarOldFileName, avatarNewFileName)
+			//if err != nil {
+			//	fmt.Println("重命名失败", err)
+			//	return &types.Response{Code: 32001, Message: "rename failed:"}, err
+			//}
+			var cmd *exec.Cmd
+			cmd = exec.Command("mv", avatarOldFileName, avatarNewFileName)
+			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("重命名失败", err)
 				return &types.Response{Code: 32001, Message: "rename failed:"}, err
 			}
 			avatarFullname = "/" + profile["Address"].(string) + "/" + avatarName
