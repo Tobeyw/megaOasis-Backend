@@ -297,6 +297,7 @@ func GetEmail(req types.Address, svcCtx *svc.ServiceContext) (string, error) {
 	if rt == "test" {
 		url = "https://megaoasis.ngd.network:8889/profile/get?address=" + req.Address
 	}
+	fmt.Println("getUser :" + url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -320,6 +321,7 @@ func GetEmail(req types.Address, svcCtx *svc.ServiceContext) (string, error) {
 		email = data["email"].(string)
 	}
 
+	fmt.Println(string(body))
 	return email, nil
 
 }
