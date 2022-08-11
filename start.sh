@@ -24,7 +24,7 @@ then
     export RUNTIME="main"
     docker stop megaoasis_profie_staging
     docker stop megaoasis_email_staging
-    
+
 
     docker container rm megaoasis_profie_staging
     docker container rm megaoasis_email_staging
