@@ -19,16 +19,19 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	fmt.Println(rt)
 	fmt.Println("==========")
 	if rt == "test" {
+		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceTest), c.Cache),
 		}
 	} else if rt == "main" {
+		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
 		}
 	} else {
+		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
