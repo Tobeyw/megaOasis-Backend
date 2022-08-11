@@ -183,14 +183,12 @@ func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.
 	rt := os.ExpandEnv("${RUNTIME}")
 	//默认main
 	clientOptions := options.Client().ApplyURI(cfg.MongoDBMain)
-	dbOnline := cfg.MongoDBMain
+	dbOnline := cfg.DBMain
 	if rt == "test" {
 		clientOptions = options.Client().ApplyURI(cfg.MongoDBTest)
 		dbOnline = cfg.DBTest
 	}
 
-	fmt.Println("===========")
-	fmt.Println(clientOptions, dbOnline)
 	clientOptions.SetMaxPoolSize(20)
 	co, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {

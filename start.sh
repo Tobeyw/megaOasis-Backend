@@ -22,15 +22,15 @@ fi
 if [ $1 == "STAGING" ]
 then
     export RUNTIME="main"
-    docker stop megaoasis_profie_staging
-    docker stop megaoasis_email_staging
+    docker stop megaoasis_profie_main
+    docker stop megaoasis_email_main
 
 
-    docker container rm megaoasis_profie_staging
-    docker container rm megaoasis_email_staging
+    docker container rm megaoasis_profie_main
+    docker container rm megaoasis_email_main
 
-    docker rmi staging_megaoasis_profie -f
-    docker rmi staging_megaoasis_email -f
+    docker rmi main_megaoasis_profie -f
+    docker rmi main_megaoasis_email -f
 
     docker-compose -p "main" up -d
 fi
