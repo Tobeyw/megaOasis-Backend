@@ -269,6 +269,7 @@ func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[
 }
 
 func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
+	fmt.Println(subject, to)
 	if to != "" {
 		m := gomail.NewMessage()               // 声明一封邮件对象
 		m.SetHeader("From", cfg.Email.Account) // 发件人
@@ -284,6 +285,8 @@ func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
 		} else {
 			fmt.Println("send email to " + to)
 		}
+	} else {
+		fmt.Println("send email to " + to + "failed")
 	}
 
 }
