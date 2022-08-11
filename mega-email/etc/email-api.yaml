@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 3333
 
 # 数据库 mysql
-DataSource: root:root@tcp(172.17.0.1:3306)/magnet
+DataSourceDev: root:root@tcp(172.17.0.1:3306)/magnet
 DataSourceTest: root:root@tcp(172.17.0.1:3306)/magnet
 DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: message
