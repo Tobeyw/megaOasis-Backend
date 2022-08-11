@@ -284,9 +284,9 @@ func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
 
 func GetEmail(req types.Address, svcCtx *svc.ServiceContext) (string, error) {
 	rt := os.ExpandEnv("${RUNTIME}")
-	url := "http://localhost:8890/profile/get?address=" + req.Address
+	url := "https://megaoasis.ngd.network:8893/profile/get?address=" + req.Address
 	if rt == "test" {
-		url = "http://localhost:8888/profile/get?address=" + req.Address
+		url = "https://megaoasis.ngd.network:8889/profile/get?address=" + req.Address
 	}
 
 	resp, err := http.Get(url)
