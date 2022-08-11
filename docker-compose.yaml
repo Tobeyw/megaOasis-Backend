@@ -11,7 +11,7 @@ services:
     container_name: megaoasis_profie_${RUNTIME}
     volumes:
       - ./logs:/go/application/Logs/
-      - /home/ubuntu/img:/go/application/img
+      - /home/ubuntu/img/main:/go/application/img
     depends_on:
       - redis
 
@@ -40,7 +40,7 @@ services:
     container_name: megaoasis_img_${RUNTIME}
     volumes:
       - ./logs_ws:/go/application/Logs
-      - /home/ubuntu/img:/go/application/img
+      - /home/ubuntu/img/main:/go/application/img
 
   redis:
     image: redis
