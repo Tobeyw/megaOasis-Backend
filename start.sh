@@ -24,15 +24,14 @@ then
     export RUNTIME="main"
     docker stop megaoasis_profie_staging
     docker stop megaoasis_email_staging
-    docker stop megaoasis_img_staging
+    
 
     docker container rm megaoasis_profie_staging
     docker container rm megaoasis_email_staging
-    docker container rm megaoasis_img_staging
 
     docker rmi staging_megaoasis_profie -f
     docker rmi staging_megaoasis_email -f
-    docker rmi staging_megaoasis_img -f
+
     docker-compose -p "main" up -d
 fi
 

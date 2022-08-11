@@ -3,14 +3,14 @@ Host: 0.0.0.0
 Port: 8888
 
 # 数据库 mysql
-DataSourceTest: root:root@tcp(172.17.0.1:3306)/magnet
+DataSourceTest: root:root@tcp(127.0.0.1:3306)/megaoasis
 DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: user
 
 #缓存
 Cache:
-  - Host: 172.17.0.1:6379
- # - Host: localhost:6379
+  #- Host: 172.17.0.1:6379
+ - Host: localhost:6379
 
 # Log
 Log:
