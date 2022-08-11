@@ -189,6 +189,8 @@ func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.
 		dbOnline = cfg.DBTest
 	}
 
+	fmt.Println("===========")
+	fmt.Println(clientOptions, dbOnline)
 	clientOptions.SetMaxPoolSize(20)
 	co, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
