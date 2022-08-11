@@ -17,24 +17,21 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	rt := os.ExpandEnv("${RUNTIME}")
 	fmt.Println(rt)
-	fmt.Println("==========")
 	if rt == "test" {
 		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
-			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceTest), c.Cache),
+			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceTest), c.CacheTest),
 		}
 	} else if rt == "main" {
-		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
-			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
+			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.CacheMain),
 		}
 	} else {
-		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
-			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
+			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceDev), c.CacheDev),
 		}
 	}
 

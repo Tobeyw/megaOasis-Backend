@@ -9,16 +9,21 @@ import (
 type Config struct {
 	rest.RestConf
 	User           zrpc.RpcClientConf
+	DataSourceDev  string
 	DataSourceTest string
 	DataSourceMain string
 	Table          string
-	Cache          cache.CacheConf
+	CacheDev       cache.CacheConf
+	CacheTest      cache.CacheConf
+	CacheMain      cache.CacheConf
 	Email          struct {
 		Account string
 		Passwd  string
 		Host    string
 		Port    int
 	}
+	MongoDBDev  string
+	DBDev       string
 	MongoDBTest string
 	DBTest      string
 	MongoDBMain string

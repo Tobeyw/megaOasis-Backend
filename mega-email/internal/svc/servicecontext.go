@@ -19,17 +19,22 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if rt == "test" {
 		return &ServiceContext{
 			Config:       c,
-			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceTest), c.Cache),
+			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceTest), c.CacheTest),
 		}
 	} else if rt == "main" {
 		return &ServiceContext{
 			Config:       c,
-			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceMain), c.Cache),
+			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceMain), c.CacheMain),
+		}
+	} else if rt == "dev" {
+		return &ServiceContext{
+			Config:       c,
+			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceDev), c.CacheDev),
 		}
 	} else {
 		return &ServiceContext{
 			Config:       c,
-			MessageModel: nil,
+			MessageModel: model.NewMessageModel(sqlx.NewMysql(c.DataSourceMain), c.CacheMain),
 		}
 	}
 }

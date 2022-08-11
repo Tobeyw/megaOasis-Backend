@@ -187,6 +187,12 @@ func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.
 	if rt == "test" {
 		clientOptions = options.Client().ApplyURI(cfg.MongoDBTest)
 		dbOnline = cfg.DBTest
+	} else if rt == "main" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBMain)
+		dbOnline = cfg.DBMain
+	} else if rt == "dev" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBDev)
+		dbOnline = cfg.DBDev
 	}
 
 	clientOptions.SetMaxPoolSize(20)

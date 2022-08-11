@@ -9,9 +9,12 @@ DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: message
 
 #缓存
-Cache:
+CacheDev:
+  - Host: 127.0.0.1:6379
+CacheTest:
   - Host: 172.17.0.1:6379
-  #- Host: 172.17.0.1:6379
+CacheMain:
+  - Host: 172.17.0.1:6380
 
 # Log
 Log:
@@ -25,6 +28,10 @@ Email:
   Passwd: 3WuGD1OV1   #授权码
   Host: smtpout.secureserver.net
   Port: 465
+
+#neofura mongodb
+MongoDBDev: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02neofura
+DBDev: test02neofura
 
 #neofura mongodb
 MongoDBTest: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@10.0.7.5:27018/test02neofura
