@@ -253,7 +253,6 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 
 			return &types.Response{Code: 200, Message: "success"}, nil
 		} else { //update
-
 			err := l.svcCtx.UserModel.Update(l.ctx, &user.User{
 				Id:            getUser.Id,
 				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
@@ -265,7 +264,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				Banner:        sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
 				Timestamp:     getUser.Timestamp,
 				EmailCreate:   sql.NullInt64{EmailCreate, nullstring.IsZero(EmailCreate)},
-				TwitterCreate: sql.NullInt64{int64(0), nullstring.IsZero(int64(0))},
+				TwitterCreate: getUser.TwitterCreate,
 			})
 
 			if err != nil {
