@@ -30,6 +30,7 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByAddress(ctx context.Context, address string) (*User, error)
+		FindBySQL(ctx context.Context, address string, sql string) (*User, error)
 		FindOneByTwitter(ctx context.Context, twitter string) (*User, error)
 		FindOneByUserName(ctx context.Context, twitter string) (*User, error)
 		Update(ctx context.Context, newData *User) error

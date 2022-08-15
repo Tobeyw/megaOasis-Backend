@@ -50,6 +50,6 @@ func main() {
 	//group := service.NewServiceGroup()
 	//defer group.Stop()
 	//group.Add(server)
-	//group.Add(internal.Server{Ctx: ctx,Config: c})
+	//group.Add(src.Server{Ctx: ctx,Config: c})
 	//group.Start()
 }

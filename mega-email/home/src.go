@@ -43,10 +43,17 @@ func (me *T) QueryAll(args struct {
 		return nil, 0, fmt.Errorf("count documents error:%s", err)
 	}
 	cursor, err := collection.Find(context.TODO(), args.Filter, op)
-	defer cursor.Close(context.TODO())
+
+	defer func(cursor *mongo.Cursor, ctx context.Context) {
+		err := cursor.Close(ctx)
+		if err != nil {
+			fmt.Println("Closing cursor error %v", err)
+		}
+	}(cursor, context.TODO())
 	if err == mongo.ErrNoDocuments {
 		return nil, 0, fmt.Errorf("document not found")
 	}
+	fmt.Println("===========", err)
 	if err != nil {
 		return nil, 0, fmt.Errorf("get cursor error:%s", err)
 	}

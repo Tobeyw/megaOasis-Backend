@@ -103,4 +103,7 @@ service megaOasis-api {
 	//error
 	@handler TwitterAlreadyAuth
 	get /twitter/error returns (Response)
+	
+	@handler AirdropInfo
+	get /airdrop
 }

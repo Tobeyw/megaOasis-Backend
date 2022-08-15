@@ -3,6 +3,7 @@ module magaOasis
 go 1.17
 
 require (
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/zeromicro/go-zero v1.3.4
 	go.mongodb.org/mongo-driver v1.9.1
 	gopkg.in/mail.v2 v2.3.1

@@ -1,11 +1,79 @@
 package home
 
 import (
+	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	gomail "gopkg.in/mail.v2"
+	"io/ioutil"
+	"log"
+	"magaOasis/internal/config"
+	"net/http"
 	"net/smtp"
+	"os"
 	"strings"
 )
+
+func GetEmail(address string) (string, error) {
+	rt := os.ExpandEnv("${RUNTIME}")
+	url := "https://megaoasis.ngd.network:8893/profile/get?address=" + address
+	if rt == "test" {
+		url = "https://megaoasis.ngd.network:8889/profile/get?address=" + address
+	} else if rt == "dev" {
+		url = "http://localhost:8889/profile/get?address=" + address
+	}
+	fmt.Println("getUser :" + url)
+
+	resp, err := http.Get(url)
+	if err != nil {
+
+		return "", err
+	}
+	defer resp.Body.Close()
+	reader := resp.Body
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		//log.Errorf("reader error:%v", err)
+		return "", err
+	}
+
+	var data map[string]interface{}
+	if err1 := json.Unmarshal(body, &data); err1 != nil {
+		return "", err
+	}
+	email := ""
+	if data["email"] != nil {
+		email = data["email"].(string)
+	}
+
+	fmt.Println(string(body))
+	return email, nil
+
+}
+
+func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
+	fmt.Println(subject, to)
+	if to != "" {
+		m := gomail.NewMessage()               // 声明一封邮件对象
+		m.SetHeader("From", cfg.Email.Account) // 发件人
+		m.SetHeader("To", to)                  // 收件人
+		m.SetHeader("Subject", subject)        // 邮件主题
+		m.SetBody("text/plain", body)          // 邮件内容
+
+		// host 是提供邮件的服务器，port是服务器端口，username 是发送邮件的账号, password是发送邮件的密码
+		d := gomail.NewDialer(cfg.Email.Host, cfg.Email.Port, cfg.Email.Account, cfg.Email.Passwd)
+		d.TLSConfig = &tls.Config{InsecureSkipVerify: true} // 配置tls，跳过验证
+		if err := d.DialAndSend(m); err != nil {
+			log.Fatalln("msg", "try send a mail failed", "err", err)
+		} else {
+			fmt.Println("send email to " + to)
+		}
+	} else {
+		fmt.Println("send email to " + to + "failed")
+	}
+
+}
 
 func sendToMail(user, password, host, to, subject, body, mailtype string) error {
 	hp := strings.Split(host, ":")

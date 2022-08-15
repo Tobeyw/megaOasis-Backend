@@ -2,25 +2,22 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	gomail "gopkg.in/mail.v2"
-	"io/ioutil"
 	"log"
 	"magaOasis/common/nftEvent"
 	"magaOasis/home"
 	"os"
+	"time"
 
+	"github.com/robfig/cron/v3"
 	"magaOasis/internal/config"
 	"magaOasis/internal/handler"
 	"magaOasis/internal/svc"
-	"magaOasis/internal/types"
 	"math"
-	"net/http"
 	"strconv"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -48,10 +45,27 @@ func main() {
 		C_online:  cd,
 	}
 
+	//间隔定时任务
+	const intervalTime = 10 * 60 * 1000
+	c1 := cron.New()
+	_, err := c1.AddFunc("@every 10m", func() {
+		currentTime := time.Now().UnixNano() / 1e6
+		fmt.Errorf("start cron job ")
+		go me.GetAuctionSuccess(currentTime, intervalTime, c)
+		go me.GetExpiredListed(currentTime, intervalTime, c)
+	})
+	c1.Start()
+
+	if err != nil {
+		fmt.Printf("add job function error:%s\n", err)
+	}
+
+	//实时监控数据
 	conn, err := me.GetCollection(struct{ Collection string }{Collection: "MarketNotification"})
 	if err != nil {
 		fmt.Println("conn :", err)
 	}
+
 	cs, err := conn.Watch(context.TODO(), mongo.Pipeline{})
 	if err != nil {
 		//return nil,err
@@ -169,7 +183,7 @@ func main() {
 			//return nil, err
 		}
 		eventItem["name"] = nftname
-		SendEmailByEvent(c, ctx, eventItem)
+		SendEmailByEvent(c, eventItem)
 
 	}
 
@@ -207,17 +221,15 @@ func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.
 	return co, dbOnline
 }
 
-func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[string]interface{}) {
+func SendEmailByEvent(cfg config.Config, result map[string]interface{}) {
 	if result["nftEvent"] != nil {
 		event := result["nftEvent"].(nftEvent.T).Val()
 		if event == nftEvent.Sold_Success.Val() {
 			name := result["name"].(string)
 			amount := result["convertAmount"].(string)
 			symbol := result["symbol"].(string)
-			address := types.Address{
-				Address: result["owner"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
+			address := result["owner"].(string)
+			to, err := home.GetEmail(address)
 			if err != nil {
 				fmt.Println("Error:", err)
 				//return
@@ -225,103 +237,42 @@ func SendEmailByEvent(cfg config.Config, svcCtx *svc.ServiceContext, result map[
 			fmt.Println("email: ", to)
 			title := "Congratulations, your item sold!"
 			body := "You successfully sold " + name + " for " + amount + " " + symbol + " on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
+			home.SendEmailOutLook(cfg, title, body, to)
 			//return title,body,to
 
 		} else if event == nftEvent.Receive_Offer.Val() {
 			name := result["name"].(string)
 			amount := result["convertAmount"].(string)
 			symbol := result["symbol"].(string)
-			address := types.Address{
-				Address: result["originOwner"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
+			address := result["originOwner"].(string)
+
+			to, err := home.GetEmail(address)
 			if err != nil {
 				fmt.Println("Error:", err)
 				//return
 			}
 			title := "Someone made an offer on your item!"
 			body := "You have an offer of " + amount + " " + symbol + " for " + name + " on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
+			home.SendEmailOutLook(cfg, title, body, to)
 			//return title,body,to
 
 		} else if event == nftEvent.Accept_Offer.Val() {
 			name := result["name"].(string)
 			amount := result["convertAmount"].(string)
 			symbol := result["symbol"].(string)
+			address := result["offerer"].(string)
 
-			address := types.Address{
-				Address: result["offerer"].(string),
-			}
-			to, err := GetEmail(address, svcCtx)
+			to, err := home.GetEmail(address)
 			if err != nil {
 				fmt.Println("Error:", err)
 				//return
 			}
 			title := "Congratulations, your offer was accepted!"
 			body := "Your offer of " + amount + " " + symbol + " for " + name + " was accepted on MegaOasis."
-			SendEmailOutLook(cfg, title, body, to)
+			home.SendEmailOutLook(cfg, title, body, to)
 			//return title,body,to
 
 		}
 	}
-
-}
-
-func SendEmailOutLook(cfg config.Config, subject, body string, to string) {
-	fmt.Println(subject, to)
-	if to != "" {
-		m := gomail.NewMessage()               // 声明一封邮件对象
-		m.SetHeader("From", cfg.Email.Account) // 发件人
-		m.SetHeader("To", to)                  // 收件人
-		m.SetHeader("Subject", subject)        // 邮件主题
-		m.SetBody("text/plain", body)          // 邮件内容
-
-		// host 是提供邮件的服务器，port是服务器端口，username 是发送邮件的账号, password是发送邮件的密码
-		d := gomail.NewDialer(cfg.Email.Host, cfg.Email.Port, cfg.Email.Account, cfg.Email.Passwd)
-		d.TLSConfig = &tls.Config{InsecureSkipVerify: true} // 配置tls，跳过验证
-		if err := d.DialAndSend(m); err != nil {
-			log.Fatalln("msg", "try send a mail failed", "err", err)
-		} else {
-			fmt.Println("send email to " + to)
-		}
-	} else {
-		fmt.Println("send email to " + to + "failed")
-	}
-
-}
-
-func GetEmail(req types.Address, svcCtx *svc.ServiceContext) (string, error) {
-	rt := os.ExpandEnv("${RUNTIME}")
-	url := "https://megaoasis.ngd.network:8893/profile/get?address=" + req.Address
-	if rt == "test" {
-		url = "https://megaoasis.ngd.network:8889/profile/get?address=" + req.Address
-	}
-	fmt.Println("getUser :" + url)
-
-	resp, err := http.Get(url)
-	if err != nil {
-
-		return "", err
-	}
-	defer resp.Body.Close()
-	reader := resp.Body
-	body, err := ioutil.ReadAll(reader)
-	if err != nil {
-		//log.Errorf("reader error:%v", err)
-		return "", err
-	}
-
-	var data map[string]interface{}
-	if err1 := json.Unmarshal(body, &data); err1 != nil {
-		return "", err
-	}
-	email := ""
-	if data["email"] != nil {
-		email = data["email"].(string)
-	}
-
-	fmt.Println(string(body))
-	return email, nil
 
 }

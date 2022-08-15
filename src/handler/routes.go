@@ -47,6 +47,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/twitter/error",
 				Handler: TwitterAlreadyAuthHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/airdrop",
+				Handler: AirdropInfoHandler(serverCtx),
+			},
 		},
 	)
 }

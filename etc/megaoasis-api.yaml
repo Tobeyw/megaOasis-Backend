@@ -3,8 +3,8 @@ Host: 0.0.0.0
 Port: 8888
 
 # 数据库 mysql
-DataSourceDev: root:root@tcp(127.0.0.1:3306)/megaoasis
-DataSourceTest: root:root@tcp(172.17.0.1:3306)/magnet
+DataSourceDev: root:root@tcp(20.106.186.140:3306)/magnet
+DataSourceTest: root:root@tcp(20.106.186.140:3306)/magnet
 DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: user
 
@@ -12,7 +12,7 @@ Table: user
 CacheDev:
  - Host: 127.0.0.1:6379
 CacheTest:
- - Host: 172.17.0.1:6379
+ - Host: 127.0.0.1:6379
 CacheMain:
  - Host: 172.17.0.1:6380
 
@@ -33,7 +33,7 @@ Email:
 MongoDBDev: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02neofura
 DBDev: test02neofura
 
-MongoDBTest: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@10.0.7.5:27018/test02neofura
+MongoDBTest: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02neofura
 DBTest: test02neofura
 
 #10.0.7.38:27018/bakN3
