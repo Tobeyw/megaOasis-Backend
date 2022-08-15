@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 3333
 
 # 数据库 mysql
-DataSourceDev: root:root@tcp(172.17.0.1:3306)/magnet
+DataSourceDev: root:root@tcp(127.0.0.1:3306)/magnet
 DataSourceTest: root:root@tcp(172.17.0.1:3306)/magnet
 DataSourceMain: root:root@tcp(172.17.0.1:3306)/main
 Table: message
@@ -34,7 +34,7 @@ MongoDBDev: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02n
 DBDev: test02neofura
 
 #neofura mongodb
-MongoDBTest: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@20.106.201.244:27018/test02neofura
+MongoDBTest: mongodb://qinzilie:1KVhcYXa12XC36nhkwlG@10.0.7.5:27018/test02neofura
 DBTest: test02neofura
 
 #10.0.7.38:27018/bakN3
