@@ -91,7 +91,7 @@ func GetAccessTokenFromCode(code string) (accessToken string, err error) {
 	authstr := consts.TwitterClientID + ":" + consts.TwitterClientScret
 
 	basic := base64.StdEncoding.EncodeToString([]byte(authstr))
-	fmt.Println(basic)
+	fmt.Println("basic:", basic)
 
 	reqest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	//reqest.Header.Set("Authorization","Basic "+basic)
@@ -152,13 +152,12 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 		return "", err
 	}
 	username := ""
-	if data == nil {
+	if data != nil {
+		uname := data["data"].(map[string]interface{})["username"]
 
-	}
-	uname := data["data"].(map[string]interface{})["username"]
-
-	if uname != nil {
-		username = data["data"].(map[string]interface{})["username"].(string)
+		if uname != nil {
+			username = data["data"].(map[string]interface{})["username"].(string)
+		}
 	}
 
 	return username, nil
