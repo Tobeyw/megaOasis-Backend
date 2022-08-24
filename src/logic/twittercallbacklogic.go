@@ -42,19 +42,19 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 	address := req.State
 
 	accessToken, err := GetAccessTokenFromCode(code)
-	if err != nil {
+	if err != nil || accessToken == "" {
 		log.Println("GetAccessTokenFromCode failed ", err)
 		//return &types.Response{"GetAccessTokenFromCode failed"}, err
 	}
 	userName, err := GetUserInfoTwitter(accessToken)
-	if err != nil {
+	if err != nil || userName == "" {
 		log.Println("GetUserInfoTwitter failed ", err)
 		//return &types.Response{"GetUserInfoTwitter failed"}, err
 	}
 
 	//查看该twitter是否验证过
 	getTwitter, err := l.svcCtx.UserModel.FindOneByTwitter(l.ctx, userName)
-
+	fmt.Println("twitter:", getTwitter)
 	if getTwitter == nil {
 		getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
 		if err != nil && err.Error() != "sql: no rows in result set" {
