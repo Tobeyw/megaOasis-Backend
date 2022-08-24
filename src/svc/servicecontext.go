@@ -18,17 +18,19 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	rt := os.ExpandEnv("${RUNTIME}")
 	fmt.Println(rt)
 	if rt == "test" {
-		fmt.Println(c.DataSourceMain)
+		fmt.Println(c.DataSourceTest)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceTest), c.CacheTest),
 		}
 	} else if rt == "main" {
+		fmt.Println(c.DataSourceMain)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceMain), c.CacheMain),
 		}
 	} else {
+		fmt.Println(c.DataSourceDev)
 		return &ServiceContext{
 			Config:    c,
 			UserModel: user.NewUserModel(sqlx.NewMysql(c.DataSourceDev), c.CacheDev),

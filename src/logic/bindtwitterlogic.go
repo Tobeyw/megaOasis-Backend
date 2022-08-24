@@ -131,6 +131,8 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 	}
 	var bearer = "Bearer " + accessToken
 	req.Header.Add("Authorization", bearer)
+
+	fmt.Println("GetUserInfoTwitter para:", req)
 	resp, err := client.Do(req)
 	if err != nil {
 		//log.Errorf("send request error:%v", err)
@@ -140,16 +142,21 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 	reader := resp.Body
 	body, err := ioutil.ReadAll(reader)
 	if err != nil {
-		//log.Errorf("reader error:%v", err)
+		fmt.Println("GetUserInfoTwitter err:", err)
 		return "", err
 	}
 
+	fmt.Println("body: ", string(body))
 	var data map[string]interface{}
 	if err1 := json.Unmarshal(body, &data); err1 != nil {
 		return "", err
 	}
-	uname := data["data"].(map[string]interface{})["username"]
 	username := ""
+	if data == nil {
+
+	}
+	uname := data["data"].(map[string]interface{})["username"]
+
 	if uname != nil {
 		username = data["data"].(map[string]interface{})["username"].(string)
 	}
