@@ -118,7 +118,7 @@ func GetAccessTokenFromCode(code string) (accessToken string, err error) {
 	if token != nil {
 		accessToken = data["access_token"].(string)
 	}
-
+	fmt.Println("accessToken:", accessToken)
 	return accessToken, nil
 }
 
@@ -152,7 +152,7 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 		return "", err
 	}
 	username := ""
-	if data != nil {
+	if data["data"] != nil {
 		uname := data["data"].(map[string]interface{})["username"]
 
 		if uname != nil {
