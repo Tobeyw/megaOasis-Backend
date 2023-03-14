@@ -205,7 +205,7 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.Email, data.Twitter, data.Avatar, data.Banner, data.Timestamp, data.TwitterCreate, data.EmailCreate)
+		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.NNS, data.Email, data.Twitter, data.Avatar, data.Banner, data.Timestamp, data.TwitterCreate, data.EmailCreate)
 	}, userAddressKey, userIdKey)
 	return ret, err
 }
@@ -220,7 +220,7 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.Email, newData.Twitter, newData.Avatar, newData.Banner, newData.Timestamp, newData.TwitterCreate, newData.EmailCreate, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.NNS, newData.Email, newData.Twitter, newData.Avatar, newData.Banner, newData.Timestamp, newData.TwitterCreate, newData.EmailCreate, newData.Id)
 	}, userAddressKey, userIdKey)
 	return err
 }
