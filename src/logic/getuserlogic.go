@@ -41,6 +41,7 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 	return &types.UserResp{
 		UserName: res.Username.String,
 		Address:  res.Address,
+		NNS:      res.NNS.String,
 		Email:    res.Email.String,
 		Twitter:  res.Twitter.String,
 		Avatar:   res.Avatar.String,

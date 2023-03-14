@@ -8,6 +8,7 @@ type Address struct {
 type UserReq struct {
 	UserName  string        `json:"username"`
 	Address   string        `json:"address"`
+	NNS       string        `json:"nns"`
 	Email     string        `json:"email"`
 	Twitter   string        `json:"twitter"`
 	Avatar    string        `json:"avatar"`
@@ -19,6 +20,7 @@ type UserReq struct {
 type UserResp struct {
 	UserName      string `json:"username"`
 	Address       string `json:"address"`
+	NNS           string `json:"nns"`
 	Email         string `json:"email"`
 	Twitter       string `json:"twitter"`
 	Avatar        string `json:"avatar"`

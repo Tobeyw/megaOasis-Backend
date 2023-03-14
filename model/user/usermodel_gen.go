@@ -21,8 +21,12 @@ var (
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_time`", "`update_time`", "`create_at`", "`update_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_time`", "`update_time`", "`create_at`", "`update_at`"), "=?,") + "=?"
 
-	cacheUserIdPrefix      = "cache:user:id:"
-	cacheUserAddressPrefix = "cache:user:address:"
+	cacheUserIdPrefix       = "cache:user:id:"
+	cacheUserAddressPrefix  = "cache:user:address:"
+	cacheUserTwitterPrefix  = "cache:user:twitter:"
+	cacheUserUsernamePrefix = "cache:user:username:"
+	cacheUserNNSPrefix      = "cache:user:nns:"
+	cacheUserQueryPrefix    = "cache:user:genealquery:"
 )
 
 type (
@@ -30,9 +34,10 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByAddress(ctx context.Context, address string) (*User, error)
-		//FindBySQL(ctx context.Context, sql string) (*User, error)
+		FindBySQL(ctx context.Context, sql string) (*[]User, error)
 		FindOneByTwitter(ctx context.Context, twitter string) (*User, error)
-		FindOneByUserName(ctx context.Context, twitter string) (*User, error)
+		FindOneByUserName(ctx context.Context, UserName string) (*User, error)
+		FindOneByNNS(ctx context.Context, NNS string) (*User, error)
 		Update(ctx context.Context, newData *User) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -47,6 +52,7 @@ type (
 		Username      sql.NullString `db:"username"`
 		Bio           sql.NullString `db:"bio"`
 		Address       string         `db:"address"`
+		NNS           sql.NullString `db:"nns"`
 		Email         sql.NullString `db:"email"`
 		Twitter       sql.NullString `db:"twitter"`
 		Avatar        sql.NullString `db:"avatar"`
@@ -96,6 +102,24 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 	}
 }
 
+func (m *defaultUserModel) FindBySQL(ctx context.Context, sql string) (*[]User, error) {
+	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, "timestamp")
+	var resp []User
+	err := m.QueryRowCtx(ctx, &resp, userIdKey, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) error {
+
+		query := fmt.Sprintf("select %s from %s ", userRows, m.table)
+		return conn.QueryRowCtx(ctx, v, query, "timestamp")
+	})
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultUserModel) FindOneByAddress(ctx context.Context, address string) (*User, error) {
 	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, address)
 	var resp User
@@ -117,7 +141,7 @@ func (m *defaultUserModel) FindOneByAddress(ctx context.Context, address string)
 }
 
 func (m *defaultUserModel) FindOneByTwitter(ctx context.Context, address string) (*User, error) {
-	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, address)
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserTwitterPrefix, address)
 	var resp User
 	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
 		query := fmt.Sprintf("select %s from %s where `twitter` = ? limit 1", userRows, m.table)
@@ -137,11 +161,31 @@ func (m *defaultUserModel) FindOneByTwitter(ctx context.Context, address string)
 }
 
 func (m *defaultUserModel) FindOneByUserName(ctx context.Context, username string) (*User, error) {
-	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, username)
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserUsernamePrefix, username)
 	var resp User
 	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
 		query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", userRows, m.table)
 		if err := conn.QueryRowCtx(ctx, &resp, query, username); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultUserModel) FindOneByNNS(ctx context.Context, nns string) (*User, error) {
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserNNSPrefix, nns)
+	var resp User
+	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `nns` = ? limit 1", userRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, nns); err != nil {
 			return nil, err
 		}
 		return resp.Id, nil

@@ -17,4 +17,5 @@ const (
 	FrontEndRedirectUrlMain     = "https://megaoasis.io/account/profile"
 	FrontEndRedirectUrlTest     = "http://20.198.216.64:3005/account/profile"
 	TwitterErrorPage            = "https://megaoasis.ngd.network:8889/twitter/error"
+	NNSContractHash             = "0x50ac1c37690cc2cfc594472833cf57505d5f46de"
 )

@@ -40,7 +40,7 @@ func (me *T) QueryAll(args struct {
 	co := options.CountOptions{}
 	count, err := collection.CountDocuments(context.TODO(), args.Filter, &co)
 	if err != nil {
-		return nil, 0, fmt.Errorf("count documents error:%s", err)
+		return nil, 0, fmt.Errorf("count documents errors:%s", err)
 	}
 	cursor, err := collection.Find(context.TODO(), args.Filter, op)
 	defer cursor.Close(context.TODO())
@@ -48,10 +48,10 @@ func (me *T) QueryAll(args struct {
 		return nil, 0, fmt.Errorf("document not found")
 	}
 	if err != nil {
-		return nil, 0, fmt.Errorf("get cursor error:%s", err)
+		return nil, 0, fmt.Errorf("get cursor errors:%s", err)
 	}
 	if err = cursor.All(context.TODO(), &results); err != nil {
-		return nil, 0, fmt.Errorf("find documents error:%s", err)
+		return nil, 0, fmt.Errorf("find documents errors:%s", err)
 	}
 	for _, item := range results {
 		if len(args.Query) == 0 {
@@ -66,7 +66,7 @@ func (me *T) QueryAll(args struct {
 	}
 	r, err := json.Marshal(convert)
 	if err != nil {
-		return nil, 0, fmt.Errorf("json marshal error:%s", err)
+		return nil, 0, fmt.Errorf("json marshal errors:%s", err)
 	}
 	*ret = json.RawMessage(r)
 	return convert, count, nil

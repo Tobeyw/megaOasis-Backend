@@ -137,6 +137,10 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	if profile["Email"] != nil {
 		Email = profile["Email"].(string)
 	}
+	NNS := ""
+	if profile["NNS"] != nil {
+		NNS = profile["NNS"].(string)
+	}
 	getUser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, Address)
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		return &types.Response{Code: 32001, Message: "findByAddress err:"}, err
@@ -148,6 +152,33 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			return &types.Response{Code: 32002, Message: "name already exists"}, nil
 		}
 
+	}
+	//校验nns的owner 是否为address & 检查nns 是否已经被设置，保证唯一
+	if NNS != "" {
+		////取消owner校验  （nns在转出，被设置之前，依旧可以展示在之前owner的propfile中）
+		//cd, dbonline := intializeMongoOnlineClient(l.svcCtx.Config, context.TODO())
+		//me := neo.T{
+		//	Db_online: dbonline,
+		//	C_online:  cd,
+		//}
+		//isValid, err := me.IsOwnerByNNS(nns, Address)
+		//if err != nil {
+		//	return &types.Response{Code: 32001, Message: "nns invalid parameter"}, err
+		//}
+		//唯一性校验
+		preUser, err := l.svcCtx.UserModel.FindOneByNNS(l.ctx, NNS)
+		if err != nil {
+			return &types.Response{Code: 32002, Message: "query user by nns err"}, err
+		}
+
+		if preUser != nil { //nns 的owner发生改变  并被新的owner设置，之前的owne 的profile 旧的owner的nns需要重置
+			preUser.NNS = sql.NullString{"", nullstring.IsNull("")}
+			err := l.svcCtx.UserModel.Update(l.ctx, preUser)
+			if err != nil {
+				return &types.Response{Code: 32001, Message: "update failed"}, err
+			}
+
+		}
 	}
 
 	//处理验签数据
@@ -179,11 +210,6 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			bannerName := path.Base(banner)
 			bannerOldFileName := banner
 			bannerNewFileName := pathDir + "/" + bannerName
-			//err := os.Rename(bannerOldFileName, bannerNewFileName)
-			//if err != nil {
-			//	fmt.Println("重命名失败", err)
-			//	return &types.Response{Code: 32001, Message: "rename failed"}, err
-			//}
 			var cmd *exec.Cmd
 			cmd = exec.Command("mv", bannerOldFileName, bannerNewFileName)
 			_, err := cmd.Output()
@@ -201,11 +227,6 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			avatarName := path.Base(avatar)
 			avatarOldFileName := avatar
 			avatarNewFileName := pathDir + "/" + avatarName
-			//err = os.Rename(avatarOldFileName, avatarNewFileName)
-			//if err != nil {
-			//	fmt.Println("重命名失败", err)
-			//	return &types.Response{Code: 32001, Message: "rename failed:"}, err
-			//}
 			var cmd *exec.Cmd
 			cmd = exec.Command("mv", avatarOldFileName, avatarNewFileName)
 			_, err := cmd.Output()
@@ -236,6 +257,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 			_, err := l.svcCtx.UserModel.Insert(l.ctx, &user.User{
 				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
 				Address:       Address,
+				NNS:           sql.NullString{NNS, nullstring.IsNull(NNS)},
 				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
 				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
 				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
@@ -257,6 +279,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				Id:            getUser.Id,
 				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
 				Address:       Address,
+				NNS:           sql.NullString{NNS, nullstring.IsNull(NNS)},
 				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
 				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
 				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
