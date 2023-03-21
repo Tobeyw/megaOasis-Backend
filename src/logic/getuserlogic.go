@@ -43,18 +43,22 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 		return nil, nil
 	}
 
-	cd, dbonline := intializeMongoOnlineClient(l.svcCtx.Config, context.TODO())
-	me := neo.T{
-		Db_online: dbonline,
-		C_online:  cd,
+	//当nns被设置后 转出的情况
+	if res.NNS.String != "" {
+		cd, dbonline := intializeMongoOnlineClient(l.svcCtx.Config, context.TODO())
+		me := neo.T{
+			Db_online: dbonline,
+			C_online:  cd,
+		}
+		isValid, err := me.IsOwnerByNNS(res.NNS.String, res.Address)
+		if err != nil {
+			return nil, err
+		}
+		if !isValid {
+			res.NNS.String = ""
+		}
 	}
-	isValid, err := me.IsOwnerByNNS(res.NNS.String, res.Address)
-	if err != nil {
-		return nil, err
-	}
-	if !isValid {
-		res.NNS.String = ""
-	}
+
 	return &types.UserResp{
 		UserName: res.Username.String,
 		Address:  res.Address,
