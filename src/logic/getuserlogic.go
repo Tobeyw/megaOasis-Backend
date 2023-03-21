@@ -4,9 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	neo "magaOasis/common/mongo"
+	"magaOasis/src/config"
 	"magaOasis/src/svc"
 	"magaOasis/src/types"
+	"os"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -62,4 +66,32 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 		Banner:   res.Banner.String,
 	}, nil
 
+}
+
+func intializeMongoOnlineClient(cfg config.Config, ctx context.Context) (*mongo.Client, string) {
+	rt := os.ExpandEnv("${RUNTIME}")
+	//默认main
+	clientOptions := options.Client().ApplyURI(cfg.MongoDBMain)
+	dbOnline := cfg.DBMain
+	if rt == "test" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBTest)
+		dbOnline = cfg.DBTest
+	} else if rt == "main" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBMain)
+		dbOnline = cfg.DBMain
+	} else if rt == "dev" {
+		clientOptions = options.Client().ApplyURI(cfg.MongoDBDev)
+		dbOnline = cfg.DBDev
+	}
+
+	clientOptions.SetMaxPoolSize(20)
+	co, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = co.Ping(ctx, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return co, dbOnline
 }
