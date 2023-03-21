@@ -10,6 +10,7 @@ import (
 	"github.com/joeqian10/neo3-gogogo/keys"
 	"io"
 	"io/ioutil"
+	neo "magaOasis/common/mongo"
 	"magaOasis/lib/type/nullstring"
 	"magaOasis/model/user"
 	"net/http"
@@ -155,30 +156,34 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	}
 	//校验nns的owner 是否为address & 检查nns 是否已经被设置，保证唯一
 	if NNS != "" {
-		////取消owner校验  （nns在转出，被设置之前，依旧可以展示在之前owner的propfile中）
-		//cd, dbonline := intializeMongoOnlineClient(l.svcCtx.Config, context.TODO())
-		//me := neo.T{
-		//	Db_online: dbonline,
-		//	C_online:  cd,
-		//}
-		//isValid, err := me.IsOwnerByNNS(nns, Address)
-		//if err != nil {
-		//	return &types.Response{Code: 32001, Message: "nns invalid parameter"}, err
-		//}
-		//唯一性校验
-		preUser, err := l.svcCtx.UserModel.FindOneByNNS(l.ctx, NNS)
-		if err != nil {
-			return &types.Response{Code: 32002, Message: "query user by nns err"}, err
+		//取消owner校验  （nns在转出，被设置之前，依旧可以展示在之前owner的propfile中）
+		cd, dbonline := intializeMongoOnlineClient(l.svcCtx.Config, context.TODO())
+		me := neo.T{
+			Db_online: dbonline,
+			C_online:  cd,
 		}
-
-		if preUser != nil { //nns 的owner发生改变  并被新的owner设置，之前的owne 的profile 旧的owner的nns需要重置
-			preUser.NNS = sql.NullString{"", nullstring.IsNull("")}
-			err := l.svcCtx.UserModel.Update(l.ctx, preUser)
+		isValid, err := me.IsOwnerByNNS(NNS, Address)
+		if err != nil {
+			return &types.Response{Code: 32001, Message: "nns invalid parameter"}, err
+		}
+		if isValid {
+			//唯一性校验
+			preUser, err := l.svcCtx.UserModel.FindOneByNNS(l.ctx, NNS)
 			if err != nil {
-				return &types.Response{Code: 32001, Message: "update failed"}, err
+				return &types.Response{Code: 32002, Message: "query user by nns err"}, err
 			}
 
+			if preUser != nil { //nns 的owner发生改变  并被新的owner设置，之前的owne 的profile 旧的owner的nns需要重置
+				preUser.NNS = sql.NullString{"", nullstring.IsNull("")}
+				err := l.svcCtx.UserModel.Update(l.ctx, preUser)
+				if err != nil {
+					return &types.Response{Code: 32001, Message: "update failed"}, err
+				}
+			}
+		} else {
+			NNS = ""
 		}
+
 	}
 
 	//处理验签数据
@@ -275,6 +280,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 
 			return &types.Response{Code: 200, Message: "success"}, nil
 		} else { //update
+
 			err := l.svcCtx.UserModel.Update(l.ctx, &user.User{
 				Id:            getUser.Id,
 				Username:      sql.NullString{UserName, nullstring.IsNull(UserName)},
