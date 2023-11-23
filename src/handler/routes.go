@@ -29,13 +29,33 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/profile/discord",
+				Handler: AuthDiscordHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/twitter/callback",
 				Handler: TwitterCallbackHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/discord/callback",
+				Handler: DiscordCallbackHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/discord/bindDiscord",
+				Handler: BindDiscordHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
 				Path:    "/profile/unbindTwitter",
 				Handler: UnbindTwitterHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/profile/unbindDiscord",
+				Handler: UnbindDiscordHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

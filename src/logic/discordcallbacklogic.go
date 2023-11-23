@@ -16,21 +16,21 @@ import (
 	"time"
 )
 
-type TwitterCallbackLogic struct {
+type DiscordCallbackLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewTwitterCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TwitterCallbackLogic {
-	return &TwitterCallbackLogic{
+func NewDiscordCallbackLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DiscordCallbackLogic {
+	return &DiscordCallbackLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, w http.ResponseWriter, r *http.Request) {
+func (l *DiscordCallbackLogic) DiscordCallback(req *types.CallbackDiscordParam, w http.ResponseWriter, r *http.Request) {
 	rt := os.ExpandEnv("${RUNTIME}")
 	url := consts.FrontEndRedirectUrlMain
 
@@ -41,19 +41,19 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 	code := req.Code
 	address := req.State
 
-	accessToken, err := GetTwitterAccessTokenFromCode(code)
+	accessToken, err := GetDiscordAccessTokenFromCode(code)
 	if err != nil || accessToken == "" {
 		log.Println("GetAccessTokenFromCode failed ", err)
 		//return &types.Response{"GetAccessTokenFromCode failed"}, err
 	}
-	userName, err := GetUserInfoTwitter(accessToken)
+	userName, err := GetUserInfoDiscord(accessToken)
 	if err != nil || userName == "" {
 		log.Println("GetUserInfoTwitter failed ", err)
 		//return &types.Response{"GetUserInfoTwitter failed"}, err
 	}
 
 	//查看该twitter是否验证过
-	getTwitter, err := l.svcCtx.UserModel.FindOneByTwitter(l.ctx, userName)
+	getTwitter, err := l.svcCtx.UserModel.FindOneByDiscord(l.ctx, userName)
 	fmt.Println("twitter:", getTwitter)
 	if getTwitter == nil {
 		getuser, err := l.svcCtx.UserModel.FindOneByAddress(l.ctx, address)
@@ -70,7 +70,8 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 				Address:       address,
 				Bio:           sql.NullString{"", nullstring.IsNull("")},
 				Email:         sql.NullString{"", nullstring.IsNull("")},
-				Twitter:       sql.NullString{userName, nullstring.IsNull(userName)},
+				Twitter:       sql.NullString{"", nullstring.IsNull("")},
+				Discord:       sql.NullString{userName, nullstring.IsNull(userName)},
 				Avatar:        sql.NullString{"", nullstring.IsNull("")},
 				Banner:        sql.NullString{"", nullstring.IsNull("")},
 				Timestamp:     time.Now().UnixMilli(),
@@ -84,8 +85,8 @@ func (l *TwitterCallbackLogic) TwitterCallback(req *types.CallbackTwitterParam, 
 
 		} else {
 			//update
-			getuser.Twitter = sql.NullString{userName, nullstring.IsNull(userName)}
-			getuser.TwitterCreate = sql.NullInt64{time.Now().UnixMilli(), true}
+			getuser.Discord = sql.NullString{userName, nullstring.IsNull(userName)}
+			//getuser.TwitterCreate = sql.NullInt64{time.Now().UnixMilli(), true}
 			err = l.svcCtx.UserModel.Update(l.ctx, getuser)
 			if err != nil {
 				log.Println("UserInfoUpdate failed ", err)

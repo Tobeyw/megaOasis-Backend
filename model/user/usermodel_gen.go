@@ -24,6 +24,7 @@ var (
 	cacheUserIdPrefix       = "cache:user:id:"
 	cacheUserAddressPrefix  = "cache:user:address:"
 	cacheUserTwitterPrefix  = "cache:user:twitter:"
+	cacheUserDiscordPrefix  = "cache:user:discord:"
 	cacheUserUsernamePrefix = "cache:user:username:"
 	cacheUserNNSPrefix      = "cache:user:nns:"
 	cacheUserQueryPrefix    = "cache:user:genealquery:"
@@ -36,6 +37,7 @@ type (
 		FindOneByAddress(ctx context.Context, address string) (*User, error)
 		FindBySQL(ctx context.Context, sql string) (*[]User, error)
 		FindOneByTwitter(ctx context.Context, twitter string) (*User, error)
+		FindOneByDiscord(ctx context.Context, discord string) (*User, error)
 		FindOneByUserName(ctx context.Context, UserName string) (*User, error)
 		FindOneByNNS(ctx context.Context, NNS string) (*User, error)
 		Update(ctx context.Context, newData *User) error
@@ -55,6 +57,7 @@ type (
 		NNS           sql.NullString `db:"nns"`
 		Email         sql.NullString `db:"email"`
 		Twitter       sql.NullString `db:"twitter"`
+		Discord       sql.NullString `db:"discord"`
 		Avatar        sql.NullString `db:"avatar"`
 		Banner        sql.NullString `db:"banner"`
 		Timestamp     int64          `db:"timestamp"`
@@ -160,6 +163,26 @@ func (m *defaultUserModel) FindOneByTwitter(ctx context.Context, address string)
 	}
 }
 
+func (m *defaultUserModel) FindOneByDiscord(ctx context.Context, address string) (*User, error) {
+	userAddressKey := fmt.Sprintf("%s%v", cacheUserDiscordPrefix, address)
+	var resp User
+	err := m.QueryRowIndexCtx(ctx, &resp, userAddressKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) (i interface{}, e error) {
+		query := fmt.Sprintf("select %s from %s where `discord` = ? limit 1", userRows, m.table)
+		if err := conn.QueryRowCtx(ctx, &resp, query, address); err != nil {
+			return nil, err
+		}
+		return resp.Id, nil
+	}, m.queryPrimary)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, nil
+	default:
+		return nil, err
+	}
+}
+
 func (m *defaultUserModel) FindOneByUserName(ctx context.Context, username string) (*User, error) {
 	userAddressKey := fmt.Sprintf("%s%v", cacheUserUsernamePrefix, username)
 	var resp User
@@ -204,8 +227,8 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 	userAddressKey := fmt.Sprintf("%s%v", cacheUserAddressPrefix, data.Address)
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.NNS, data.Email, data.Twitter, data.Avatar, data.Banner, data.Timestamp, data.TwitterCreate, data.EmailCreate)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,?)", m.table, userRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Username, data.Bio, data.Address, data.NNS, data.Email, data.Twitter, data.Discord, data.Avatar, data.Banner, data.Timestamp, data.TwitterCreate, data.EmailCreate)
 	}, userAddressKey, userIdKey)
 	return ret, err
 }
@@ -220,7 +243,7 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.NNS, newData.Email, newData.Twitter, newData.Avatar, newData.Banner, newData.Timestamp, newData.TwitterCreate, newData.EmailCreate, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.Username, newData.Bio, newData.Address, newData.NNS, newData.Email, newData.Twitter, newData.Discord, newData.Avatar, newData.Banner, newData.Timestamp, newData.TwitterCreate, newData.EmailCreate, newData.Id)
 	}, userAddressKey, userIdKey)
 	return err
 }

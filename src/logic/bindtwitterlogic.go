@@ -41,7 +41,7 @@ func (l *BindTwitterLogic) BindTwitter(req *types.TwitterAccessToken) (resp *typ
 		return &types.Response{Message: "signature verify failed"}, err
 	}
 	if verifyResult {
-		accessToken, err := GetAccessTokenFromCode(req.Code)
+		accessToken, err := GetTwitterAccessTokenFromCode(req.Code)
 		if err != nil {
 			return &types.Response{Code: 32001, Message: "GetAccessTokenFromCode failed"}, err
 		}
@@ -70,7 +70,7 @@ func (l *BindTwitterLogic) BindTwitter(req *types.TwitterAccessToken) (resp *typ
 	}, nil
 }
 
-func GetAccessTokenFromCode(code string) (accessToken string, err error) {
+func GetTwitterAccessTokenFromCode(code string) (accessToken string, err error) {
 	postData := url.Values{}
 	postData.Add("code", code)
 	postData.Add("client_id", consts.TwitterClientID)
@@ -101,7 +101,7 @@ func GetAccessTokenFromCode(code string) (accessToken string, err error) {
 	//处理返回结果
 	response, err := client.Do(reqest)
 	if err != nil {
-		//log.Errorf("reader error:%v", err)
+		//log.Errorf("reader errors:%v", err)
 		return "", err
 	}
 	defer response.Body.Close()
@@ -126,7 +126,7 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, consts.TwitterGetUserInfoEndpoint, nil)
 	if err != nil {
-		//log.Errorf("make request error:%v", err)
+		//log.Errorf("make request errors:%v", err)
 		return "", err
 	}
 	var bearer = "Bearer " + accessToken
@@ -135,7 +135,7 @@ func GetUserInfoTwitter(accessToken string) (string, error) {
 	fmt.Println("GetUserInfoTwitter para:", req)
 	resp, err := client.Do(req)
 	if err != nil {
-		//log.Errorf("send request error:%v", err)
+		//log.Errorf("send request errors:%v", err)
 		return "", err
 	}
 	defer resp.Body.Close()

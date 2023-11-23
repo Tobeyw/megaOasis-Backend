@@ -11,6 +11,7 @@ type UserReq struct {
 	NNS       string        `json:"nns"`
 	Email     string        `json:"email"`
 	Twitter   string        `json:"twitter"`
+	Discord   string        `json:"discord"`
 	Avatar    string        `json:"avatar"`
 	Bio       string        `json:"bio"`
 	Banner    string        `json:"banner"`
@@ -23,6 +24,7 @@ type UserResp struct {
 	NNS           string `json:"nns"`
 	Email         string `json:"email"`
 	Twitter       string `json:"twitter"`
+	Discord       string `json:"discord"`
 	Avatar        string `json:"avatar"`
 	Bio           string `json:"bio"`
 	Banner        string `json:"banner"`
@@ -65,13 +67,28 @@ type CallbackTwitterParam struct {
 	Code  string `form:"code"`
 }
 
+type CallbackDiscordParam struct {
+	Code  string `form:"code"`
+	State string `form:"state"`
+}
+
 type UnbindTwitter struct {
 	Address   string        `json:"address"`
 	Twitter   string        `json:"twitter"`
 	Signature SignatureData `json:"signature"`
 }
-
+type UnbindDiscord struct {
+	Address   string        `json:"address"`
+	Discord   string        `json:"discord"`
+	Signature SignatureData `json:"signature"`
+}
 type TwitterAccessToken struct {
+	Address   string        `json:"address"`
+	Code      string        `json:"code"`
+	Signature SignatureData `json:"signature"`
+}
+
+type DiscordAccessToken struct {
 	Address   string        `json:"address"`
 	Code      string        `json:"code"`
 	Signature SignatureData `json:"signature"`
