@@ -134,6 +134,10 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 	if profile["Twitter"] != nil {
 		Twitter = profile["Twitter"].(string)
 	}
+	Discord := ""
+	if profile["Discord"] != nil {
+		Discord = profile["Discord"].(string)
+	}
 	Email := ""
 	if profile["Email"] != nil {
 		Email = profile["Email"].(string)
@@ -266,6 +270,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
 				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
 				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
+				Discord:       sql.NullString{Discord, nullstring.IsNull(Discord)},
 				Avatar:        sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
 				Banner:        sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
 				Timestamp:     time.Now().UnixMilli(),
@@ -289,6 +294,7 @@ func (l *UploadUserLogic) UploadUser() (resp *types.Response, err error) {
 				Bio:           sql.NullString{Bio, nullstring.IsNull(Bio)},
 				Email:         sql.NullString{Email, nullstring.IsNull(Email)},
 				Twitter:       sql.NullString{Twitter, nullstring.IsNull(Twitter)},
+				Discord:       sql.NullString{Discord, nullstring.IsNull(Discord)},
 				Avatar:        sql.NullString{avatarFullname, nullstring.IsNull(avatarFullname)},
 				Banner:        sql.NullString{bannerFullname, nullstring.IsNull(bannerFullname)},
 				Timestamp:     getUser.Timestamp,
@@ -328,7 +334,7 @@ func createDateDir(basepath string) string {
 	return folderPath
 }
 
-//目录是否存在
+// 目录是否存在
 func isDirExists(filename string) bool {
 	_, err := os.Stat(filename)
 	if os.IsNotExist(err) {
@@ -337,7 +343,7 @@ func isDirExists(filename string) bool {
 	return true
 }
 
-//验签
+// 验签
 func isVerify(signature types.SignatureData) (bool, error) {
 
 	//验签

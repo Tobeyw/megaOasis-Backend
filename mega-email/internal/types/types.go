@@ -15,6 +15,7 @@ type UserResp struct {
 	Address       string `json:"address"`
 	Email         string `json:"email"`
 	Twitter       string `json:"twitter"`
+	Discord       string `json:"discord"`
 	Avatar        string `json:"avatar"`
 	Bio           string `json:"bio"`
 	Banner        string `json:"banner"`

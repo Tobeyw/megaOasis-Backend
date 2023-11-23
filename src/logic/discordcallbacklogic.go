@@ -99,7 +99,7 @@ func (l *DiscordCallbackLogic) DiscordCallback(req *types.CallbackDiscordParam, 
 
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
-		errURL := consts.TwitterErrorPage
+		errURL := consts.DiscordErrorPage
 		http.Redirect(w, r, errURL, http.StatusFound)
 	}
 

@@ -69,6 +69,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/discord/error",
+				Handler: DiscordAlreadyAuthHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/airdrop",
 				Handler: AirdropInfoHandler(serverCtx),
 			},

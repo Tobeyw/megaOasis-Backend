@@ -65,6 +65,7 @@ func (l *GetUserLogic) GetUser(req *types.Address) (resp *types.UserResp, err er
 		NNS:      res.NNS.String,
 		Email:    res.Email.String,
 		Twitter:  res.Twitter.String,
+		Discord:  res.Discord.String,
 		Avatar:   res.Avatar.String,
 		Bio:      res.Bio.String,
 		Banner:   res.Banner.String,

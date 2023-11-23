@@ -30,4 +30,5 @@ const (
 	DiscordAccessTokenGrantType = "authorization_code"
 	DiscordRedirectURITest      = "https://megaoasis.ngd.network:8889/discord/callback"
 	DiscordRedirectURIMain      = "https://megaoasis.ngd.network:8893/discord/callback"
+	DiscordErrorPage            = "https://megaoasis.ngd.network:8889/discord/error"
 )
