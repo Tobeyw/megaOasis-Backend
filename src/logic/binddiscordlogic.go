@@ -10,6 +10,7 @@ import (
 	"magaOasis/lib/type/nullstring"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"magaOasis/src/svc"
@@ -76,7 +77,14 @@ func GetDiscordAccessTokenFromCode(code string) (accessToken string, err error) 
 	postData.Add("client_id", consts.DiscordClientID)
 	postData.Add("client_secret", consts.DiscordClientSecret)
 	postData.Add("grant_type", consts.DiscordAccessTokenGrantType)
-	postData.Add("redirect_uri", consts.DiscordRedirectURI)
+
+	//postData.Add("redirect_uri", consts.DiscordRedirectURI)
+	rt := os.ExpandEnv("${RUNTIME}")
+	if rt == "test" {
+		postData.Add("redirect_uri", consts.DiscordRedirectURITest)
+	} else {
+		postData.Add("redirect_uri", consts.DiscordRedirectURIMain)
+	}
 
 	client := &http.Client{}
 
