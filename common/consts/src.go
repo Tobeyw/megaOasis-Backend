@@ -25,7 +25,7 @@ const (
 	DiscordResponseType         = "code"
 	DiscordClientID             = "1176715427863343176"
 	DiscordClientSecret         = "Hla1PRaBf8PCMX1nKABOfDlSkFoTL8e1"
-	DiscordScope                = "guilds.members.read%20guilds%20guilds.join%20identify"
+	DiscordScope                = "identify"
 	DiscordPrompt               = "consent"
 	DiscordAccessTokenGrantType = "authorization_code"
 	DiscordRedirectURITest      = "https://megaoasis.ngd.network:8889/discord/callback"
